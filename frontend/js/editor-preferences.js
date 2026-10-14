@@ -45,6 +45,13 @@
   "Back to editor": "Zpět do editoru",
   "Toggle fullscreen": "Přepnout celou obrazovku",
   "Presentation": "Prezentace",
+  "Presentation details": "Údaje o prezentaci",
+  "Subject": "Předmět",
+  "Description": "Popis",
+  "Keywords": "Klíčová slova",
+  "Category": "Kategorie",
+  "Document language": "Jazyk dokumentu",
+  "Metadata must be an object.": "Metadata musí být objekt.",
   "Import presentation": "Importovat prezentaci",
   "Close": "Zavřít",
   "Import source": "Zdroj importu",
@@ -151,7 +158,7 @@
     if (saved?.appearance === "dark") preferences.appearance = "dark";
   } catch (_) {}
   const originals = new WeakMap(), attributes = new WeakMap();
-  const excluded = ".slide-canvas,.slide-caption .title,.gallery-item span,#font-name option,select[id$='_font_name'] option,textarea,.CodeMirror,.editor-preview,#json-highlight,script,style";
+  const excluded = "[data-user-content],.slide-canvas,.slide-caption .title,.gallery-item span,#font-name option,select[id$='_font_name'] option,textarea,.CodeMirror,.editor-preview,#json-highlight,script,style";
   function translate(text) {
     if (preferences.language !== "cs") return text;
     if (messages[text]) return messages[text];

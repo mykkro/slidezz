@@ -57,7 +57,17 @@
       }
       return result;
     });
-    return {theme, slides};
+    const result = {theme, slides};
+    if (Object.hasOwn(data, "metadata")) {
+      if (!data.metadata || Array.isArray(data.metadata) || typeof data.metadata !== "object") throw new Error("Metadata must be an object.");
+      result.metadata = {...data.metadata};
+      for (const name of ["title","author","subject","description","keywords","category","language"]) {
+        if (!Object.hasOwn(result.metadata, name)) continue;
+        const value = result.metadata[name];
+        if (typeof value !== "string" || [...value].length > 255 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(value)) throw new Error("Metadata " + name + " must be text (max 255 characters, no control characters).");
+      }
+    }
+    return result;
   }
   function layouts(theme) {
     const left = theme.margin_left, top = theme.margin_top;

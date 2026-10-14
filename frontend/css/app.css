@@ -1,3 +1,5 @@
+.document-name.btn { max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; text-align:left; }
+@media(max-width:1100px) { .document-name.btn { display:none; } }
 .import-modes { display:flex; width:max-content; }
 .source-editor { position:relative; }
 .source-editor #json-highlight,.source-editor .json-input { margin:0; padding:12px; font-family:Consolas,monospace; font-size:13px; line-height:1.5; tab-size:2; white-space:pre; letter-spacing:0; }

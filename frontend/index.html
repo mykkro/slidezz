@@ -22,7 +22,7 @@
 <body>
 <header class="topbar">
   <a href="/" class="brand" aria-label="Slidezz"><img src="/static/assets/slidezz-mark.png" class="brand-symbol" alt=""><span>Slidezz</span></a>
-  <span class="document-name">Untitled presentation</span>
+  <button id="document-title" class="document-name btn btn-light btn-sm" title="Presentation details" aria-label="Presentation details">Untitled presentation</button>
   <span id="save-status" class="save-status" role="status">Ready</span>
   <div class="top-actions">
     <div class="dropdown">
@@ -77,9 +77,19 @@
     <div class="editor-tabs" role="tablist">
       <button id="slide-tab" class="active" role="tab" aria-selected="true" aria-controls="slide-settings">Slide</button>
       <button id="theme-tab" role="tab" aria-selected="false" aria-controls="theme-settings">Theme</button>
+      <button id="presentation-tab" role="tab" aria-selected="false" aria-controls="presentation-settings">Presentation</button>
     </div>
     <div class="editor-scroll">
       <div id="slide-settings" role="tabpanel" aria-labelledby="slide-tab"><div id="template-label" class="template-label"></div><form id="properties"></form></div>
+      <div id="presentation-settings" role="tabpanel" aria-labelledby="presentation-tab" hidden>
+        <div class="mb-3"><label class="form-label" for="metadata-title">Title</label><input id="metadata-title" class="form-control" maxlength="255"></div>
+        <div class="mb-3"><label class="form-label" for="metadata-author">Author</label><input id="metadata-author" class="form-control" maxlength="255"></div>
+        <div class="mb-3"><label class="form-label" for="metadata-subject">Subject</label><input id="metadata-subject" class="form-control" maxlength="255"></div>
+        <div class="mb-3"><label class="form-label" for="metadata-description">Description</label><textarea id="metadata-description" class="form-control" rows="3" maxlength="255"></textarea></div>
+        <div class="mb-3"><label class="form-label" for="metadata-keywords">Keywords</label><input id="metadata-keywords" class="form-control" maxlength="255"></div>
+        <div class="mb-3"><label class="form-label" for="metadata-category">Category</label><input id="metadata-category" class="form-control" maxlength="255"></div>
+        <div class="mb-3"><label class="form-label" for="metadata-language">Document language</label><input id="metadata-language" class="form-control" maxlength="255"></div>
+      </div>
       <div id="theme-settings" role="tabpanel" aria-labelledby="theme-tab" hidden>
         <button id="download-theme" class="btn btn-light btn-sm mb-3" type="button"><i data-lucide="download"></i>Export theme JSON</button>
         <div class="mb-3"><label for="font-name" class="form-label">Font</label><select id="font-name" class="form-select"><optgroup label="Bundled free fonts"><option>Lato</option><option>Fira Sans</option><option>PT Sans</option><option>PT Serif</option><option>Barlow</option><option>IBM Plex Mono</option></optgroup><optgroup label="System fonts"><option>Aptos</option><option>Arial</option><option>Calibri</option><option>Georgia</option></optgroup></select><a href="/api/fonts/download" class="btn btn-light btn-sm mt-2"><i data-lucide="download"></i>Download fonts (TTF)</a></div>

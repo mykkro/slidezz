@@ -441,3 +441,30 @@ def test_typography_schema_has_groups_for_every_text_panel():
                     field = fields[panel["field"] + "_" + suffix]
                     assert field["subgroup"] == "Typography"
                     assert field["theme_key"]
+def test_presentation_metadata_round_trips_and_sets_pptx_properties(client):
+    metadata = {"title":"Research notes", "author":"Author", "subject":"A subject",
+                "description":"A description", "keywords":"one, two", "category":"Demo", "language":"cs"}
+    data = {"metadata":metadata, "slides":[{"type":"title","title":"A different slide title"}]}
+    assert client.post("/api/save", json=data).status_code == 200
+    assert client.get("/api/presentation").json["metadata"] == metadata
+    yaml = client.post("/api/export/yaml", json=data).get_data(as_text=True)
+    assert client.post("/api/import/yaml", json={"text":yaml}).json["metadata"] == metadata
+    deck = Presentation(BytesIO(client.post("/api/export/pptx", json=data).data))
+    for name, attribute in {"title":"title","author":"author","subject":"subject",
+                            "description":"comments","keywords":"keywords","category":"category","language":"language"}.items():
+        assert getattr(deck.core_properties, attribute) == metadata[name]
+    assert deck.core_properties.last_modified_by == metadata["author"]
+    assert deck.slides[0].shapes[0].text == "A different slide title"
+
+
+@pytest.mark.parametrize("metadata", [
+    None, [], "wrong", {"title":True}, {"author":123}, {"description":"x"*256}, {"title":"bad\x00title"},
+])
+def test_invalid_presentation_metadata_is_rejected(client, metadata):
+    response = client.post("/api/import", json={"metadata":metadata,"slides":[]})
+    assert response.status_code == 400
+
+
+def test_custom_metadata_is_preserved():
+    metadata = {"title":"Notes","custom":{"edition":3}}
+    assert validate({"metadata":metadata,"slides":[]})["metadata"] == metadata

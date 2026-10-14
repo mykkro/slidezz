@@ -583,7 +583,7 @@ function bindImport() {
       if (applicationVersion !== importValidationVersion || !$("import-dialog").open) return;
       clearTimeout(saveTimer);
       presentation = data; imageList = nextImages;
-      selectSlide(0); syncTheme(); changed(); $("import-dialog").close();
+      selectSlide(0); syncTheme(); syncMetadata(); changed(); $("import-dialog").close();
     } catch (error) { $("import-error").textContent = error.message; }
     finally {
       applyingImport = false;
@@ -636,20 +636,35 @@ function bind() {
       renderForm(); changed();
     };
   }
-  for (const [id, other, pane, otherPane] of [
-    ["slide-tab", "theme-tab", "slide-settings", "theme-settings"],
-    ["theme-tab", "slide-tab", "theme-settings", "slide-settings"]
-  ]) {
+  const tabs = [["slide-tab","slide-settings"],["theme-tab","theme-settings"],["presentation-tab","presentation-settings"]];
+  for (const [index, [id, pane]] of tabs.entries()) {
+    $(id).tabIndex = id === "slide-tab" ? 0 : -1;
     $(id).onclick = () => {
-      $(id).classList.add("active"); $(other).classList.remove("active");
-      $(id).setAttribute("aria-selected", "true"); $(other).setAttribute("aria-selected", "false");
-      $(pane).hidden = false; $(otherPane).hidden = true;
+      for (const [tab, panel] of tabs) {
+        $(tab).classList.toggle("active", tab === id);
+        $(tab).setAttribute("aria-selected", String(tab === id));
+        $(tab).tabIndex = tab === id ? 0 : -1;
+        $(panel).hidden = panel !== pane;
+      }
       for (const editor of editors) editor.codemirror.refresh();
     };
     $(id).onkeydown = event => {
-      if (["ArrowLeft", "ArrowRight"].includes(event.key)) { $(other).click(); $(other).focus(); }
+      if (["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) {
+        event.preventDefault();
+        const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1
+          : (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
+        $(tabs[next][0]).click(); $(tabs[next][0]).focus();
+      }
     };
   }
+  $("document-title").onclick = () => {
+    $("presentation-tab").click(); $("metadata-title").focus();
+  };
+  for (const key of metadataKeys) $("metadata-" + key).oninput = event => {
+    presentation.metadata ??= {};
+    presentation.metadata[key] = event.target.value;
+    syncDocumentTitle(); changed();
+  };
   $("download-json").onclick = () => download(new Blob([JSON.stringify(presentation, null, 2)], {type:"application/json"}), "presentation.json");
   $("download-theme").onclick = () => download(new Blob([JSON.stringify(presentation.theme, null, 2)], {type:"application/json"}), "theme.json");
   $("download-yaml").onclick = async () => {
@@ -697,6 +712,17 @@ function bind() {
     }
   });
 }
+const metadataKeys = ["title","author","subject","description","keywords","category","language"];
+function syncDocumentTitle() {
+  const title = presentation.metadata?.title || "";
+  $("document-title").toggleAttribute("data-user-content", Boolean(title.trim()));
+  $("document-title").textContent = title.trim() ? title : "Untitled presentation";
+  document.title = title.trim() ? title + " | Slidezz" : "Slidezz";
+}
+function syncMetadata() {
+  for (const key of metadataKeys) $("metadata-" + key).value = presentation.metadata?.[key] || "";
+  syncDocumentTitle();
+}
 function syncTheme() {
   for (const setting of layoutSettings) $("theme-" + setting.name).value = presentation.theme[setting.name];
   const font = $("font-name");
@@ -714,6 +740,7 @@ async function initialize() {
     [templates, imageList, presentation, layoutSettings] = await Promise.all([
       json("/api/templates"), json("/api/images"), json("/api/presentation"), json("/api/theme/layout")
     ]);
+    syncMetadata();
     if (presentationOnly) {
       $("exit-presentation").hidden = true;
       bindPresentation(); icons();

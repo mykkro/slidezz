@@ -2,6 +2,7 @@
 (() => {
   "use strict";
   const config = JSON.parse(document.getElementById("viewer-config").textContent);
+  if (config.presentation.metadata?.title?.trim()) document.title = config.presentation.metadata.title + " | Slidezz";
   const $ = id => document.getElementById(id);
   let index = 0, version = 0;
   const style = document.createElement("style");

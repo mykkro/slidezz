@@ -101,6 +101,13 @@ Old deck references are mapped to `blue-light-mesh.png` and `smoke-blue-blush.pn
 
 ## Editing
 
+Click the presentation name in the top bar, or open the inspector's **Presentation**
+tab, to edit its title, author, subject, description, keywords, category and document
+language. These are document-wide metadata, separate from text on individual slides.
+They are autosaved and preserved in JSON/YAML, ZIP and HTML bundles. PPTX exports
+write them to PowerPoint's document properties; description maps to comments.
+Each standard metadata value is limited to 255 characters for PPTX compatibility.
+
 Open the toolbar's **Editor settings** menu to select English or Czech and switch
 between light and dark appearance. Preferences are saved in your browser and work
 in standalone HTML too. They affect only the editor, not slide content or exported

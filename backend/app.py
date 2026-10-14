@@ -15,6 +15,7 @@ from backend.templates.registry import get_template_definitions, get_all_templat
 from backend.services.layout_icons import layout_icon
 from backend.services.layout_geometry import SETTINGS as LAYOUT_SETTINGS, resolve_layout
 from backend.services.slide_renderer import DEFAULT_THEME, markdown_html
+from backend.services.presentation_metadata import validate_metadata
 
 IMAGES_DIR = PROJECT_ROOT / "images"
 
@@ -80,7 +81,10 @@ def validate(data):
                 value = {"blue.jpg": "blue-light-mesh.png", "smoke.jpg": "smoke-blue-blush.png"}.get(value, value)
             normalized[field["name"]] = value
         slides.append(normalized)
-    return dict(theme=theme, slides=slides)
+    result = dict(theme=theme, slides=slides)
+    if "metadata" in data:
+        result["metadata"] = validate_metadata(data["metadata"])
+    return result
 
 
 def create_default_presentation():
