@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Slides Maker</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+
+<h1>Slides Maker</h1>
+
+<button id="add-title">
+    Add Title Slide
+</button>
+
+<button id="export-pptx">
+    Export PPTX
+</button>
+
+<h2>Presentation</h2>
+
+<label>Font</label>
+<input id="font-name" value="Aptos">
+
+<label>Primary Color</label>
+<input id="primary-color"
+       type="color"
+       value="#0055AA">
+
+<label>Background Color</label>
+<input id="background-color"
+       type="color"
+       value="#ffffff">
+
+<h3>Background</h3>
+
+<div id="gallery"></div>
+
+<h2>Selected Slide</h2>
+
+<div id="properties">
+
+    <label>Title</label><br>
+    <input id="slide-title" type="text"><br><br>
+
+    <label>Subtitle</label><br>
+    <input id="slide-subtitle" type="text"><br><br>
+
+    <label>Author</label><br>
+    <input id="slide-author" type="text"><br><br>
+
+    <label>Institution</label><br>
+    <input id="slide-institution" type="text"><br><br>
+
+    <label>Date</label><br>
+    <input id="slide-date" type="text"><br><br>
+
+</div>
+
+<h3>Slides</h3>
+
+<div id="slides"></div>
+
+<script src="/static/js/app.js"></script>
+
+</body>
+</html>
