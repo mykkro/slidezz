@@ -42,6 +42,7 @@ def main():
                 browser = playwright.chromium.launch(channel="msedge")
                 page = browser.new_page(viewport={"width":1440, "height":900})
                 errors = []
+                page.on("dialog", lambda dialog: dialog.accept())
                 page.on("pageerror", lambda error: errors.append(str(error)))
                 page.goto(f"http://127.0.0.1:{server.server_port}")
                 expect(page.locator(".slide-item")).to_have_count(8)
@@ -108,6 +109,7 @@ def main():
             browser = playwright.chromium.launch(channel="msedge")
             page = browser.new_page(viewport={"width":1440, "height":900})
             network, errors = [], []
+            page.on("dialog", lambda dialog: dialog.accept())
             page.on("pageerror", lambda error: errors.append(str(error)))
             page.on("request", lambda request: network.append(request.url) if request.url.startswith(("http:", "https:")) else None)
             page.goto(prefix.with_suffix(".html").as_uri())

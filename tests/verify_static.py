@@ -34,6 +34,7 @@ def main():
         browser = p.chromium.launch(channel="msedge")
         page = browser.new_page(viewport={"width":1440,"height":900})
         errors, network = [], []
+        page.on("dialog", lambda dialog: dialog.accept())
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.on("request", lambda request: network.append(request.url) if request.url.startswith(("http:","https:")) else None)
         page.goto((ROOT / "dist" / "slidezz.html").as_uri())

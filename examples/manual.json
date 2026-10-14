@@ -127,7 +127,7 @@
       "type": "image_left_content",
       "title": "Import JSON or YAML",
       "image": "manual-import.png",
-      "markdown": "Open **Import** and choose a format.\n\nPaste JSON or YAML, or select a file. Review it, then press **Replace presentation**.\n\nA deck contains a `theme` object and a `slides` array. Each slide identifies its template with `type`."
+      "markdown": "Choose **Import > Text** and JSON or YAML.\n\nPaste your deck. Syntax is highlighted and validation checks the design before **Apply design** becomes available.\n\nConfirm replacement when prompted. Unsaved edits get an explicit warning.\n\nUse **File** for JSON, YAML or ZIP imports.\n\nA deck has a `theme` and a `slides` array; each slide identifies its template with `type`."
     },
     {
       "type": "two_columns",

@@ -1,11 +1,18 @@
 """Fetch pinned npm distributions once; the app serves all assets locally."""
 from io import BytesIO
+import argparse
 from pathlib import Path
 import tarfile
 from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parents[1] / "frontend" / "vendor"
 PACKAGES = {
+    "codemirror": ("5.65.16", {
+        "package/addon/runmode/runmode-standalone.js": "runmode.js",
+        "package/mode/javascript/javascript.js": "javascript.js",
+        "package/mode/yaml/yaml.js": "yaml.js",
+        "package/LICENSE": "LICENSE",
+    }),
     "marked": ("12.0.2", {
         "package/lib/marked.umd.js": "marked.min.js",
         "package/LICENSE.md": "LICENSE",
@@ -40,7 +47,12 @@ PACKAGES = {
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--only", choices=PACKAGES)
+    args = parser.parse_args()
     for name, (version, files) in PACKAGES.items():
+        if args.only and name != args.only:
+            continue
         url = f"https://registry.npmjs.org/{name}/-/{name}-{version}.tgz"
         with urlopen(url, timeout=60) as response:
             archive_bytes = response.read()

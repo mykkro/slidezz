@@ -49,6 +49,7 @@ def main():
                 browser = p.chromium.launch(channel=args.channel)
                 page = browser.new_page(viewport={"width":1440, "height":900}, device_scale_factor=1)
                 errors, external = [], []
+                page.on("dialog", lambda dialog: dialog.accept())
                 page.on("pageerror", lambda error: errors.append(str(error)))
                 page.on("request", lambda request: external.append(request.url) if not request.url.startswith(
                     f"http://127.0.0.1:{server.server_port}") and not request.url.startswith("blob:") else None)
@@ -74,7 +75,7 @@ def main():
                 expect(page.locator(".slide-item")).to_have_count(1)
                 page.locator("#open-import").click()
                 page.locator("#json-input").fill('{"slides":[{"type":"unknown"}]}')
-                page.locator("#apply-import").click()
+                expect(page.locator("#apply-import")).to_be_disabled()
                 expect(page.locator("#import-error")).to_contain_text("unknown")
                 expect(page.locator(".slide-item")).to_have_count(1)
                 page.locator("#json-file").set_input_files(ROOT / "examples" / "presentation.json")

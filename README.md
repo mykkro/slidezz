@@ -122,6 +122,9 @@ which is reused on subsequent runs for reproducible downloads.
   Text and images are native, editable PowerPoint objects.
 - JSON or YAML downloads the deck structure. Import accepts a file or pasted source and
   replaces the deck only after validation succeeds.
+  Text mode highlights JSON/YAML and checks syntax and slide schemas as you type.
+  **Apply design** is enabled only for valid text. Replacing a non-empty deck asks
+  for confirmation; pending unsaved edits receive an explicit discard warning.
 - Bundle exports include referenced images, so they can be moved to another computer.
 
 YAML uses the same `theme` and `slides` structure as JSON. Choose YAML in the import

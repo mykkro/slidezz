@@ -4,7 +4,7 @@ const $ = id => document.getElementById(id);
 let presentation, templates, layoutSettings, imageList = [], selected = 0, editors = [], galleryField = null;
 let resolvedLayoutKey = null, resolvedLayouts = null;
 let importArchive = null;
-let saveTimer, renderTimer, renderVersion = 0, changeVersion = 0;
+let saveTimer, renderTimer, renderVersion = 0, changeVersion = 0, savedVersion = 0;
 let saveQueue = Promise.resolve();
 const markdownCache = new Map();
 const icons = () => lucide.createIcons();
@@ -80,6 +80,7 @@ function save() {
   $("save-status").textContent = "Saving...";
   saveQueue = saveQueue.catch(() => {}).then(async () => {
     await api("/api/save", snapshot);
+    savedVersion = version;
     if (version === changeVersion) {
       $("save-status").textContent = "Saved";
       $("error-banner").hidden = true;
@@ -524,8 +525,137 @@ function bindPresentation() {
   });
   new ResizeObserver(sizePresentation).observe($("presentation-stage"));
 }
+let importValidationVersion = 0, importValidationTimer, validatedImport = null, applyingImport = false;
+function highlightImport() {
+  const textarea = $("json-input"), highlight = $("json-highlight");
+  highlight.replaceChildren();
+  CodeMirror.runMode(textarea.value + "\n", $("import-format").value === "yaml" ? "text/x-yaml" : {name:"javascript",json:true}, highlight, {tabSize:2});
+  highlight.scrollTop = textarea.scrollTop;
+  highlight.scrollLeft = textarea.scrollLeft;
+}
+function scheduleImportValidation() {
+  const version = ++importValidationVersion;
+  clearTimeout(importValidationTimer);
+  validatedImport = null;
+  $("apply-import").disabled = true;
+  $("import-error").textContent = "";
+  $("json-input").removeAttribute("aria-invalid");
+  highlightImport();
+  if ($("import-format").value === "zip") {
+    $("import-validation").textContent = importArchive ? "ZIP bundle ready" : "No ZIP bundle selected";
+    $("apply-import").disabled = !importArchive || applyingImport;
+    return;
+  }
+  if (!$("json-input").value.trim()) {
+    $("import-validation").textContent = "No source";
+    return;
+  }
+  $("import-validation").textContent = "Checking design...";
+  importValidationTimer = setTimeout(() => validateImportSource(version), 300);
+}
+async function validateImportSource(version) {
+  const format = $("import-format").value, source = $("json-input").value;
+  try {
+    const data = format === "yaml" ? await json("/api/import/yaml", {text:source})
+      : await json("/api/import", JSON.parse(source));
+    if (version !== importValidationVersion || !$("import-dialog").open) return;
+    validatedImport = {format, source, data};
+    $("import-validation").textContent = `Valid design: ${data.slides.length} slide${data.slides.length === 1 ? "" : "s"}`;
+    $("apply-import").disabled = applyingImport;
+  } catch (error) {
+    if (version !== importValidationVersion || !$("import-dialog").open) return;
+    $("import-validation").textContent = "Invalid design";
+    $("import-error").textContent = error.message;
+    $("json-input").setAttribute("aria-invalid", "true");
+    $("apply-import").disabled = true;
+    return;
+  }
+  $("json-input").removeAttribute("aria-invalid");
+}
+function syncImportMode() {
+  const zip = $("import-format").value === "zip";
+  if (zip) $("import-mode-file").checked = true;
+  $("import-file-source").hidden = !$("import-mode-file").checked;
+  $("import-source").hidden = zip;
+  scheduleImportValidation();
+}
+function bindImport() {
+  $("open-import").onclick = () => {
+    $("json-file").value = "";
+    importArchive = null;
+    $("import-mode-text").checked = true;
+    if ($("import-format").value === "zip") $("import-format").value = "json";
+    $("import-dialog").showModal();
+    syncImportMode();
+  };
+  $("cancel-import").onclick = () => $("import-dialog").close();
+  $("import-dialog").addEventListener("close", () => {
+    ++importValidationVersion;
+    clearTimeout(importValidationTimer);
+  });
+  $("json-input").oninput = scheduleImportValidation;
+  $("json-input").onscroll = () => {
+    $("json-highlight").scrollTop = $("json-input").scrollTop;
+    $("json-highlight").scrollLeft = $("json-input").scrollLeft;
+  };
+  $("import-format").onchange = syncImportMode;
+  $("import-mode-text").onchange = () => {
+    if ($("import-format").value === "zip") $("import-format").value = "json";
+    syncImportMode();
+  };
+  $("import-mode-file").onchange = syncImportMode;
+  $("json-file").onchange = async event => {
+    const file = event.target.files[0];
+    if (!file) return;
+    ++importValidationVersion;
+    clearTimeout(importValidationTimer);
+    $("apply-import").disabled = true;
+    try {
+      importArchive = /\.zip$/i.test(file.name) ? file : null;
+      const source = importArchive ? null : await file.text();
+      if (event.target.files[0] !== file) return;
+      if (source !== null) $("json-input").value = source;
+      $("import-mode-file").checked = true;
+      $("import-format").value = importArchive ? "zip" : /\.ya?ml$/i.test(file.name) ? "yaml" : "json";
+      syncImportMode();
+    } catch (error) { $("import-error").textContent = error.message; }
+  };
+  $("apply-import").onclick = async () => {
+    if (applyingImport) return;
+    const zip = $("import-format").value === "zip";
+    const validated = validatedImport;
+    if (!zip && (!validated || validated.format !== $("import-format").value || validated.source !== $("json-input").value)) {
+      scheduleImportValidation(); return;
+    }
+    if (zip && !importArchive) return;
+    const unsaved = changeVersion !== savedVersion;
+    if ((unsaved || presentation.slides.length) && !window.confirm(unsaved
+      ? "You have unsaved changes. Discard them and apply this design?"
+      : "Replace the current presentation with this design?")) return;
+    applyingImport = true;
+    const applicationVersion = importValidationVersion;
+    $("apply-import").disabled = true;
+    try {
+      let data, nextImages = imageList;
+      if (zip) {
+        const form = new FormData(); form.append("archive", importArchive);
+        data = await json("/api/import/zip", form);
+        nextImages = await json("/api/images");
+      } else data = structuredClone(validated.data);
+      if (applicationVersion !== importValidationVersion || !$("import-dialog").open) return;
+      clearTimeout(saveTimer);
+      presentation = data; imageList = nextImages;
+      selectSlide(0); syncTheme(); changed(); $("import-dialog").close();
+    } catch (error) { $("import-error").textContent = error.message; }
+    finally {
+      applyingImport = false;
+      $("apply-import").disabled = $("import-format").value === "zip" ? !importArchive : !validatedImport;
+    }
+  };
+}
 function bind() {
   bindPresentation();
+  bindImport();
   for (const setting of layoutSettings) {
     $("theme-" + setting.name).oninput = event => {
       if (event.target.value === "" || !event.target.validity.valid) return;
@@ -606,37 +736,6 @@ function bind() {
       download(await response.blob(), "presentation.pptx");
     } catch (error) { showError(error); }
     finally { $("export-pptx").disabled = !current(); }
-  };
-  $("open-import").onclick = () => {
-    $("import-error").textContent = "";
-    $("json-file").value = "";
-    importArchive = null;
-    $("import-dialog").showModal();
-  };
-  $("cancel-import").onclick = () => $("import-dialog").close();
-  $("import-format").onchange = () => { $("import-source").hidden = $("import-format").value === "zip"; };
-  $("json-file").onchange = async event => {
-    const file = event.target.files[0];
-    if (file) {
-      importArchive = /\.zip$/i.test(file.name) ? file : null;
-      if (!importArchive) $("json-input").value = await file.text();
-      $("import-format").value = importArchive ? "zip" : /\.ya?ml$/i.test(file.name) ? "yaml" : "json";
-      $("import-format").onchange();
-    }
-  };
-  $("apply-import").onclick = async () => {
-    try {
-      let data;
-      if ($("import-format").value === "zip") {
-        if (!importArchive) throw new Error("Choose a ZIP bundle.");
-        const form = new FormData(); form.append("archive", importArchive);
-        data = await json("/api/import/zip", form);
-        imageList = await json("/api/images");
-      } else data = $("import-format").value === "yaml"
-          ? await json("/api/import/yaml", {text: $("json-input").value})
-          : await json("/api/import", JSON.parse($("json-input").value));
-      presentation = data; selectSlide(0); syncTheme(); changed(); $("import-dialog").close();
-    } catch (error) { $("import-error").textContent = error.message; }
   };
   $("clear-image").onclick = () => {
     current()[galleryField] = ""; $("gallery-dialog").close(); renderForm(); changed();

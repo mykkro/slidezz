@@ -1,3 +1,16 @@
+.import-modes { display:flex; width:max-content; }
+.source-editor { position:relative; }
+.source-editor #json-highlight,.source-editor .json-input { margin:0; padding:12px; font-family:Consolas,monospace; font-size:13px; line-height:1.5; tab-size:2; white-space:pre; letter-spacing:0; }
+.source-editor #json-highlight { position:absolute; inset:1px; overflow:hidden; pointer-events:none; color:#263631; }
+.source-editor .json-input { position:relative; height:280px; min-height:160px; resize:vertical; color:transparent; caret-color:#263631; background:transparent; overflow:auto; }
+.source-editor .json-input::selection { background:#bedce880; }
+.source-editor .json-input:focus { background:transparent; }
+.source-editor .cm-string,.source-editor .cm-string-2 { color:#176b4c; }
+.source-editor .cm-number,.source-editor .cm-atom { color:#a23c46; }
+.source-editor .cm-property,.source-editor .cm-keyword,.source-editor .cm-meta { color:#285c9b; }
+.source-editor .cm-comment { color:#6f7972; }
+.import-validation { margin-top:12px; font-size:13px; }
+@media (forced-colors:active) { .source-editor .json-input { color:CanvasText; } .source-editor #json-highlight { display:none; } }
 .settings-group { border-top:1px solid #dce4df; padding:0; margin-bottom:8px; }
 .settings-group > summary { padding:12px 0; font-weight:600; font-size:13px; cursor:pointer; }
 .settings-group-body { padding:0 0 8px; }
