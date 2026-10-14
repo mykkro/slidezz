@@ -149,7 +149,7 @@
     {
       "type": "content",
       "title": "A complete offline HTML editor",
-      "markdown": "Choose **Bundle > Standalone HTML**.\n\nThe single file includes its deck, referenced images, CSS, JavaScript and fonts. Open it directly in a browser.\n\nIt can edit, present and import/export JSON, YAML and ZIP without a server.\n\nOffline mode has **no PPTX export or individual image upload**; use ZIP import to add bundled images."
+      "markdown": "**Bundle > Standalone HTML** creates a single-file editor with the deck, images, fonts and libraries.\n\nOpen it directly in a browser to edit, present and import/export JSON, YAML or ZIP.\n\nFor viewing only, append `?mode=presentation` or choose **Bundle > Presentation-only HTML**. The latter contains no editor.\n\nOffline mode cannot export PPTX or upload individual images. Import a ZIP to add images."
     },
     {
       "type": "content",

@@ -74,23 +74,11 @@ def build_static_html(data, images):
     definitions = get_template_definitions()
     for name, definition in definitions.items():
         definition["icon_url"] = data_url(layout_icon(get_all_templates()[name]).encode(), "image/svg+xml")
-    manifest = json.loads((FRONTEND_DIR / "fonts" / "manifest.json").read_text())
-    fonts, licenses = [], {"Slidezz": (PROJECT_ROOT / "LICENSE").read_text()}
-    for family in manifest["families"]:
-        root = FRONTEND_DIR / "fonts" / family["directory"]
-        licenses[family["name"]] = (root / "OFL.txt").read_text(encoding="utf-8")
-        for filename in family["files"]:
-            suffix = filename.rsplit("-", 1)[-1]
-            fonts.append(dict(path=family["directory"] + "/" + filename, family=family["name"],
-                              weight=700 if "Bold" in suffix else 400,
-                              style="italic" if "Italic" in suffix else "normal",
-                              data=base64.b64encode((root / filename).read_bytes()).decode("ascii")))
-    for path in sorted((FRONTEND_DIR / "vendor").glob("*/LICENSE")):
-        licenses[path.parent.name] = path.read_text(encoding="utf-8")
+    fonts, licenses = bundled_fonts()
     config = dict(presentation=data, defaults=DEFAULT_THEME, templates=definitions,
                   settings=SETTINGS, images={name: data_url(raw, mimetypes.guess_type(name)[0] or "image/png")
                                             for name, raw in images.items()},
-                  fonts=fonts, licenses=licenses, shell=shell,
+                  fonts=fonts, licenses=licenses, shell=shell, viewer_shell=build_viewer_shell(),
                   id=hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()[:24])
     encoded = json.dumps(config, ensure_ascii=True).replace("<", "\\u003c")
     return shell.replace("<!--STATIC_CONFIG-->",
@@ -143,3 +131,59 @@ def read_zip(raw):
     except (BadZipFile, KeyError, UnicodeError, json.JSONDecodeError,
             UnidentifiedImageError, OSError, Image.DecompressionBombError) as error:
         raise ValueError(f"Invalid ZIP bundle: {error}")
+def bundled_fonts():
+    manifest = json.loads((FRONTEND_DIR / "fonts" / "manifest.json").read_text())
+    fonts, licenses = [], {"Slidezz": (PROJECT_ROOT / "LICENSE").read_text()}
+    for family in manifest["families"]:
+        root = FRONTEND_DIR / "fonts" / family["directory"]
+        licenses[family["name"]] = (root / "OFL.txt").read_text(encoding="utf-8")
+        for filename in family["files"]:
+            fonts.append(dict(path=family["directory"] + "/" + filename, family=family["name"],
+                              weight=700 if "Bold" in filename else 400,
+                              style="italic" if "Italic" in filename else "normal",
+                              data=base64.b64encode((root / filename).read_bytes()).decode("ascii")))
+    for path in sorted((FRONTEND_DIR / "vendor").glob("*/LICENSE")):
+        licenses[path.parent.name] = path.read_text(encoding="utf-8")
+    return fonts, licenses
+
+
+def build_viewer_shell():
+    soup = BeautifulSoup((FRONTEND_DIR / "viewer.html").read_text(encoding="utf-8"), "html.parser")
+    favicon = soup.select_one('link[rel="icon"]')
+    favicon["href"] = data_url((FRONTEND_DIR / "assets" / "slidezz-mark.png").read_bytes(), "image/png")
+    for link in soup.select('link[rel="stylesheet"]'):
+        style = soup.new_tag("style")
+        style.string = (FRONTEND_DIR / link["href"].removeprefix("/static/")).read_text(encoding="utf-8").replace("</style", "<\\/style")
+        link.replace_with(style)
+    for source in list(soup.select("script[src]")):
+        script = soup.new_tag("script")
+        script.string = (FRONTEND_DIR / source["src"].removeprefix("/static/")).read_text(encoding="utf-8").replace("</script", "<\\/script")
+        source.decompose()
+        soup.body.append(script)
+    soup.head.append(Comment("VIEWER_CONFIG"))
+    return str(soup)
+
+
+def build_viewer_html(data, images):
+    from backend.services.layout_geometry import resolve_layout
+    from backend.services.slide_renderer import markdown_html
+    fonts, licenses = bundled_fonts()
+    names = {data["theme"]["font_name"].strip().lower()}
+    definitions = get_template_definitions()
+    for slide in data["slides"]:
+        names.update(slide[field["name"]].strip().lower() for field in definitions[slide["type"]]["fields"]
+                     if field["type"] == "font" and slide.get(field["name"]))
+    markdown = {slide.get(item["field"], ""): markdown_html(slide.get(item["field"], ""))
+                for slide in data["slides"] for item in get_all_templates()[slide["type"]].layout
+                if item["kind"] == "markdown"}
+    config = dict(presentation=data,
+                  layouts={name: {**definitions[name], **resolve_layout(template, data["theme"])}
+                           for name, template in get_all_templates().items()},
+                  markdown=markdown,
+                  images={name: data_url(raw, mimetypes.guess_type(name)[0] or "image/png")
+                          for name, raw in images.items()},
+                  fonts=[font for font in fonts if font["family"].lower() in names],
+                  licenses=licenses)
+    encoded = json.dumps(config, ensure_ascii=True).replace("<", "\\u003c")
+    return build_viewer_shell().replace("<!--VIEWER_CONFIG-->",
+        '<script id="viewer-config" type="application/json">' + encoded + "</script>", 1)

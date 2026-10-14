@@ -2,6 +2,7 @@
 (() => {
   "use strict";
   const config = JSON.parse(document.getElementById("static-config").textContent);
+  const presentationOnly = new URLSearchParams(location.search).get("mode") === "presentation";
   const clone = value => structuredClone(value);
   let deck = clone(config.presentation), images = {...config.images}, database = null;
   const bytes = encoded => Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
@@ -95,7 +96,31 @@
   function htmlBundle(data, selectedImages) {
     const next = {...config, presentation:validate(data), images:selectedImages, id:crypto.randomUUID()};
     const encoded = JSON.stringify(next).replace(/</g, "\\u003c");
-    return config.shell.replace("<!--STATIC_CONFIG-->", '<script id="static-config" type="application/json">' + encoded + '<' + '/script>');
+    return config.shell.replace("<!--STATIC_CONFIG-->", () => '<script id="static-config" type="application/json">' + encoded + '<' + '/script>');
+  }
+function renderedMarkdown(text) {
+    const escaped = text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#x27;");
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = DOMPurify.sanitize(marked.parse(escaped),{FORBID_TAGS:["style","script"]});
+    for (const image of wrapper.querySelectorAll("img")) image.replaceWith(document.createTextNode("[Image "+image.alt+": use a gallery image field]"));
+    for (const link of wrapper.querySelectorAll("a")) if (!/^(https?:\/\/|mailto:|#)/i.test(link.getAttribute("href") || "")) link.removeAttribute("href");
+    return wrapper.innerHTML;
+  }
+  function viewerBundle(data) {
+    data = validate(data);
+    const names = new Set([data.theme.font_name.trim().toLowerCase()]);
+    const markdown = {}, selectedImages = {};
+    for (const slide of data.slides) {
+      for (const field of config.templates[slide.type].fields) {
+        if (field.type === "font" && slide[field.name]) names.add(slide[field.name].trim().toLowerCase());
+        if (field.type === "markdown") Object.defineProperty(markdown, slide[field.name] || "", {value:renderedMarkdown(slide[field.name] || ""), enumerable:true, configurable:true});
+      }
+    }
+    for (const name of references(data)) if (Object.hasOwn(images, name)) selectedImages[name] = images[name];
+    const next = {presentation:data, layouts:layouts(data.theme), markdown, images:selectedImages,
+      fonts:config.fonts.filter(font => names.has(font.family.toLowerCase())), licenses:config.licenses};
+    const encoded = JSON.stringify(next).replace(/</g, "\\u003c");
+    return config.viewer_shell.replace("<!--VIEWER_CONFIG-->", () => '<script id="viewer-config" type="application/json">' + encoded + '<' + '/script>');
   }
   function zipBundle(data) {
     data = validate(data);
@@ -156,6 +181,7 @@
     });
   }
   const ready = (async () => {
+    if (presentationOnly) return;
     for (const font of config.fonts) {
       const face = new FontFace(font.family,bytes(font.data).buffer,{weight:String(font.weight),style:font.style});
       document.fonts.add(face);
@@ -177,7 +203,7 @@
     } catch { database = null; }
   })();
   const response = (data,status=200,type="application/json") => new Response(type === "application/json" ? JSON.stringify(data) : data,{status,headers:{"Content-Type":type}});
-  window.SlidezzStatic = {imageURL:name => images[name] || "data:image/png;base64,invalid"};
+  window.SlidezzStatic = {presentationOnly, imageURL:name => Object.hasOwn(images,name) ? images[name] : "data:image/png;base64,invalid"};
   window.fetch = async (path,options={}) => {
     await ready;
     try {
@@ -195,6 +221,7 @@
         case "/api/import/yaml": return response(validate(jsyaml.load(body.text,{schema:jsyaml.JSON_SCHEMA})));
         case "/api/import/zip": return response(await importZip(body.get("archive")));
         case "/api/export/yaml": return response(jsyaml.dump(validate(body),{lineWidth:-1,noRefs:true}),200,"application/yaml");
+        case "/api/export/viewer": return response(viewerBundle(body),200,"text/html");
         case "/api/export/zip": return response(zipBundle(body),200,"application/zip");
         case "/api/export/html": {
           const selectedImages = Object.fromEntries(references(body).filter(name => Object.hasOwn(images,name)).map(name => [name,images[name]]));
@@ -202,12 +229,7 @@
         }
         case "/api/markdown": {
           if (typeof body.text !== "string" || body.text.length > 20000) throw new Error("Markdown must be text (max 20000 characters).");
-          const escaped = body.text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#x27;");
-          const wrapper = document.createElement("div");
-          wrapper.innerHTML = DOMPurify.sanitize(marked.parse(escaped),{FORBID_TAGS:["style","script"]});
-          for (const image of wrapper.querySelectorAll("img")) image.replaceWith(document.createTextNode("[Image "+image.alt+": use a gallery image field]"));
-          for (const link of wrapper.querySelectorAll("a")) if (!/^(https?:\/\/|mailto:|#)/i.test(link.getAttribute("href") || "")) link.removeAttribute("href");
-          return response({html:wrapper.innerHTML});
+          return response({html:renderedMarkdown(body.text)});
         }
         default: throw new Error("This action requires the Python app.");
       }

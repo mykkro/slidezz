@@ -38,6 +38,24 @@ python tools/build_static.py
 python tools/build_static.py --presentation examples/presentation.json --output dist/slidezz.html
 ```
 
+### Presentation-Only HTML
+
+For an existing standalone editor or ZIP's `index.html`, append
+`?mode=presentation` to its URL. It opens directly in presentation mode with no
+editor controls or back-to-editor action. This mode shows the embedded deck,
+not browser-saved edits. Remove the query string to return to the editor.
+
+For a separate read-only file, choose **Bundle > Presentation-only HTML**.
+It contains the slides, referenced images, required bundled fonts and navigation,
+without editor panes or editing libraries. This export works online and offline.
+Arrow keys, Page Up/Down, Space, Home/End and fullscreen remain available.
+
+Build one from the command line:
+
+```sh
+python tools/build_static.py --presentation examples/manual.json --presentation-only --output dist/slidezz-manual-viewer.html
+```
+
 ### Python App
 
 Requires Python 3.10 or newer.

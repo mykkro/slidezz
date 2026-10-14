@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slidezz Presentation</title>
+<link rel="icon" type="image/png" href="/static/assets/slidezz-mark.png">
+<link rel="stylesheet" href="/static/css/app.css">
+<link rel="stylesheet" href="/static/css/viewer.css">
+<script defer src="/static/vendor/lucide/lucide.min.js"></script>
+<script defer src="/static/js/slide-renderer.js"></script>
+<script defer src="/static/js/editor-preferences.js"></script>
+<script defer src="/static/js/viewer.js"></script>
+</head>
+<body class="presentation-viewer">
+<header class="viewer-toolbar"><button id="viewer-fullscreen" class="viewer-control" title="Toggle fullscreen" aria-label="Toggle fullscreen"><i data-lucide="maximize"></i></button></header>
+<main id="viewer-stage" aria-label="Presentation"><div id="viewer-preview" class="slide-viewport"></div></main>
+<footer class="viewer-navigation"><button id="viewer-previous" class="viewer-control" title="Previous slide" aria-label="Previous slide"><i data-lucide="chevron-left"></i></button><span id="viewer-position" role="status"></span><button id="viewer-next" class="viewer-control" title="Next slide" aria-label="Next slide"><i data-lucide="chevron-right"></i></button></footer>
+<div id="viewer-error" role="alert" hidden></div>
+</body>
+</html>

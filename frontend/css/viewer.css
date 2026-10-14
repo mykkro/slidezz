@@ -1,0 +1,10 @@
+body.presentation-viewer { height:100dvh; display:grid; grid-template-rows:52px minmax(0,1fr) 52px; overflow:hidden; background:#202322; color:#fff; }
+.viewer-toolbar { display:flex; justify-content:flex-end; align-items:center; padding:8px 16px; }
+#viewer-stage { display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden; }
+#viewer-preview { flex:none; }
+.viewer-navigation { display:flex; align-items:center; justify-content:center; gap:20px; }
+.viewer-control { width:36px; height:36px; display:grid; place-items:center; border:0; border-radius:4px; background:#e9eeeb; color:#263631; }
+.viewer-control:hover { background:#c8d6ce; }
+.viewer-control:disabled { opacity:.4; }
+#viewer-error { position:fixed; inset:auto 16px 60px; background:#742d35; color:#fff; padding:12px; }
+.viewer-empty { display:grid; place-items:center; position:absolute; inset:0; background:#202322; color:white; }

@@ -12,6 +12,7 @@
   "Bundle": "Balíček",
   "ZIP with images": "ZIP s obrázky",
   "Standalone HTML": "Samostatné HTML",
+  "Presentation-only HTML": "HTML pouze pro promítání",
   "Export PPTX": "Exportovat PPTX",
   "Slides": "Snímky",
   "Slide": "Snímek",
@@ -209,20 +210,21 @@
   }
   function apply() {
     document.documentElement.dataset.bsTheme = preferences.appearance;
-    document.getElementById("editor-dark-mode").checked = preferences.appearance === "dark";
-    document.getElementById("editor-language").value = preferences.language;
+    const appearance = document.getElementById("editor-dark-mode"), language = document.getElementById("editor-language");
+    if (appearance) appearance.checked = preferences.appearance === "dark";
+    if (language) language.value = preferences.language;
     localize();
     try { localStorage.setItem(key, JSON.stringify(preferences)); } catch (_) {}
   }
   window.SlidezzUI = {translate};
-  document.getElementById("editor-dark-mode").onchange = event => {
+  document.getElementById("editor-dark-mode")?.addEventListener("change", event => {
     preferences.appearance = event.target.checked ? "dark" : "light";
     apply();
-  };
-  document.getElementById("editor-language").onchange = event => {
+  });
+  document.getElementById("editor-language")?.addEventListener("change", event => {
     preferences.language = event.target.value;
     apply();
-  };
+  });
   observer = new MutationObserver(localize);
   apply();
 })();

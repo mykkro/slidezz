@@ -4,6 +4,8 @@ const $ = id => document.getElementById(id);
 let presentation, templates, layoutSettings, imageList = [], selected = 0, editors = [], galleryField = null;
 let resolvedLayoutKey = null, resolvedLayouts = null;
 let importArchive = null;
+const presentationOnly = Boolean(window.SlidezzStatic?.presentationOnly);
+if (presentationOnly) document.body.classList.add("presentation-only");
 let saveTimer, renderTimer, renderVersion = 0, changeVersion = 0, savedVersion = 0;
 let saveQueue = Promise.resolve();
 const markdownCache = new Map();
@@ -106,77 +108,7 @@ function imageURL(name) {
   return window.SlidezzStatic ? window.SlidezzStatic.imageURL(name) : "/images/" + encodeURIComponent(name);
 }
 function slideCanvas(slide, number, layouts) {
-  const template = layouts[slide.type];
-  const canvas = element("div", "slide-canvas");
-  canvas.style.backgroundColor = presentation.theme.background_color;
-  canvas.style.fontFamily = presentation.theme.font_name;
-  canvas.style.color = presentation.theme.text_color;
-  canvas.style.setProperty("--slide-footer-color", presentation.theme.footer_color);
-  canvas.style.setProperty("--slide-accent", presentation.theme.primary_color);
-  const tasks = [];
-  if (slide.background_image) {
-    const background = element("img", "slide-background");
-    background.src = imageURL(slide.background_image);
-    background.alt = "";
-    const surface = element("div", "slide-surface");
-    for (const [key, property] of [["x", "left"], ["y", "top"], ["w", "width"], ["h", "height"]]) {
-      surface.style[property] = template.surface[key] * 96 + "px";
-    }
-    surface.style.backgroundColor = slide.background_panel_color ?? presentation.theme.background_panel_color;
-    surface.style.opacity = 1 - (slide.background_panel_transparency ?? presentation.theme.background_panel_transparency) / 100;
-    background.onerror = () => {
-      background.remove(); surface.remove();
-      const missing = element("div", "background-missing", `Image ${slide.background_image} not found`);
-      missing.style.left = template.footer.x * 96 + "px";
-      missing.style.top = template.missing_y * 96 + "px";
-      canvas.append(missing);
-    };
-    canvas.append(background, surface);
-  }
-  for (const box of template.layout) {
-    const value = slide[box.field] || "";
-    const node = element("div", "slide-block " + box.kind + (box.field === "title" ? " title" : ""));
-    node.style.left = box.x * 96 + "px";
-    node.style.top = box.y * 96 + "px";
-    node.style.width = box.w * 96 + "px";
-    node.style.height = box.h * 96 + "px";
-    node.style.fontSize = box.size * 4 / 3 + "px";
-    if (box.field === "title") node.style.color = presentation.theme.primary_color;
-    if (box.kind !== "image") {
-      node.style.fontFamily = slide[box.field + "_font_name"] || presentation.theme.font_name;
-      node.style.fontSize = (slide[box.field + "_font_size"] ?? box.size) * 4 / 3 + "px";
-      if (slide[box.field + "_font_color"]) {
-        node.style.color = slide[box.field + "_font_color"];
-        node.style.setProperty("--slide-accent", slide[box.field + "_font_color"]);
-      }
-    }
-    if (box.kind === "image") {
-      if (value) {
-        const image = element("img");
-        image.alt = value;
-        image.src = imageURL(value);
-        image.style.objectFit = slide[box.field + "_fit"] || "contain";
-        const alignmentField = template.fields.find(field => field.name === box.field + "_alignment");
-        const alignment = alignmentField.options.find(option =>
-          option.value === (slide[box.field + "_alignment"] || "center"));
-        image.style.objectPosition = `${alignment.x * 100}% ${alignment.y * 100}%`;
-        image.onerror = () => { node.replaceChildren(document.createTextNode(`Image ${value} not found`)); };
-        image.onload = () => { node.style.background = "transparent"; node.style.padding = "0"; };
-        node.append(image);
-      } else node.textContent = "Image (not selected) not found";
-    } else if (box.kind === "markdown") {
-      tasks.push(markdown(value).then(html => { node.innerHTML = html; }));
-    } else node.textContent = value;
-    canvas.append(node);
-  }
-  const footer = element("div", "slide-footer", presentation.theme.footer_text || "");
-  const page = element("div", "slide-footer slide-page", String(number).padStart(2, "0"));
-  footer.style.left = template.footer.x * 96 + "px";
-  footer.style.maxWidth = template.footer.w * 96 + "px";
-  page.style.left = template.footer.page_x * 96 + "px";
-  footer.style.top = page.style.top = template.footer.y * 96 + "px";
-  canvas.append(footer, page);
-  return {canvas, ready: Promise.all(tasks)};
+  return SlidezzRenderer.canvas(slide, number, layouts, presentation.theme, {markdown, imageURL});
 }
 function mount(viewport, canvas) {
   viewport.replaceChildren(canvas);
@@ -479,7 +411,12 @@ function sizePresentation() {
   if (canvas) canvas.style.transform = `scale(${width / 1280})`;
 }
 async function presentSlide(index) {
-  if (!presentation.slides.length) return;
+  if (!presentation.slides.length) {
+    $("presentation-preview").replaceChildren(element("div", "viewer-empty", "No slides yet"));
+    $("presentation-position").textContent = "0 / 0";
+    $("presentation-previous").disabled = $("presentation-next").disabled = true;
+    sizePresentation(); return;
+  }
   presentedIndex = Math.max(0, Math.min(index, presentation.slides.length - 1));
   const version = ++presenterVersion;
   const layouts = await json("/api/layouts", presentation.theme);
@@ -493,6 +430,7 @@ async function presentSlide(index) {
   sizePresentation();
 }
 function closePresentation() {
+  if (presentationOnly) return;
   presenterVersion++;
   $("presentation-dialog").close();
   if (document.fullscreenElement === $("presentation-dialog")) document.exitFullscreen().catch(() => {});
@@ -720,7 +658,8 @@ function bind() {
     } catch (error) { showError(error); }
   };
   for (const [id, format, filename] of [["export-zip", "zip", "presentation.zip"],
-                                       ["export-html", "html", "presentation.html"]]) {
+                                       ["export-html", "html", "presentation.html"],
+                                       ["export-viewer", "viewer", "presentation-viewer.html"]]) {
     $(id).onclick = async () => {
       $(id).disabled = true;
       try {
@@ -775,6 +714,13 @@ async function initialize() {
     [templates, imageList, presentation, layoutSettings] = await Promise.all([
       json("/api/templates"), json("/api/images"), json("/api/presentation"), json("/api/theme/layout")
     ]);
+    if (presentationOnly) {
+      $("exit-presentation").hidden = true;
+      bindPresentation(); icons();
+      $("presentation-dialog").showModal();
+      await presentSlide(0);
+      return;
+    }
     for (const setting of layoutSettings) {
       const wrapper = element("div", "mb-3");
       const label = element("label", "form-label", setting.label);

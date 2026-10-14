@@ -88,3 +88,26 @@ def test_html_export_is_self_contained_and_escapes_embedded_data(client):
     config = json.loads(soup.select_one("#static-config").string)
     assert config["presentation"]["slides"][0]["title"] == data["slides"][0]["title"]
     assert "hacked" not in [script.string for script in soup.find_all("script") if script.string == "window.hacked=true"]
+def test_viewer_html_is_self_contained_without_editor(client):
+    data = {"theme":{"font_name":"Lato"},"slides":[
+        {"type":"content","title":"Read-only","markdown":"**Safe** <script>alert(1)</script>",
+         "title_font_name":"PT Serif"}]}
+    response = client.post("/api/export/viewer", json=data)
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.data, "html.parser")
+    assert not soup.select("script[src],link[rel=stylesheet],textarea,#properties,.workspace,#import-dialog")
+    config = json.loads(soup.select_one("#viewer-config").string)
+    assert config["presentation"]["slides"][0]["title"] == "Read-only"
+    assert len(config["fonts"]) == 8
+    assert {font["family"] for font in config["fonts"]} == {"Lato","PT Serif"}
+    assert "<strong>Safe</strong>" in config["markdown"][data["slides"][0]["markdown"]]
+    assert "<script>" not in config["markdown"][data["slides"][0]["markdown"]]
+    scripts = "\n".join(script.get_text() for script in soup.select("script:not([type='application/json'])"))
+    assert "new EasyMDE" not in scripts
+    assert "/api/save" not in scripts
+    assert "bindImport" not in scripts
+
+
+def test_viewer_export_accepts_empty_deck_and_rejects_invalid_deck(client):
+    assert client.post("/api/export/viewer", json={"slides":[]}).status_code == 200
+    assert client.post("/api/export/viewer", json={"slides":[{"type":"unknown"}]}).status_code == 400

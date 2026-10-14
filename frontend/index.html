@@ -16,6 +16,7 @@
   <script defer src="/static/vendor/codemirror/javascript.js"></script>
   <script defer src="/static/vendor/codemirror/yaml.js"></script>
   <script defer src="/static/js/editor-preferences.js"></script>
+  <script defer src="/static/js/slide-renderer.js"></script>
   <script defer src="/static/js/app.js"></script>
 </head>
 <body>
@@ -40,6 +41,7 @@
       <ul class="dropdown-menu dropdown-menu-end">
         <li><button id="export-zip" class="dropdown-item" type="button"><i data-lucide="archive"></i>ZIP with images</button></li>
         <li><button id="export-html" class="dropdown-item" type="button"><i data-lucide="file-code"></i>Standalone HTML</button></li>
+        <li><button id="export-viewer" class="dropdown-item" type="button"><i data-lucide="play"></i>Presentation-only HTML</button></li>
       </ul>
     </div>
     <button class="btn btn-primary btn-sm" id="export-pptx"><i data-lucide="download"></i><span>Export PPTX</span></button>

@@ -184,3 +184,5 @@ svg.lucide { width:17px; height:17px; stroke-width:1.8; flex-shrink:0; }
 [data-bs-theme="dark"] .source-editor .cm-property,[data-bs-theme="dark"] .source-editor .cm-keyword,[data-bs-theme="dark"] .source-editor .cm-meta { color:#96c3f6; }
 [data-bs-theme="dark"] .source-editor .cm-comment { color:#a7b9ae; }
 [data-bs-theme="dark"] .danger { color:#ff9da4; }
+.presentation-only > .topbar,.presentation-only > .workspace,.presentation-only > #import-dialog,.presentation-only > #gallery-dialog { display:none; }
+.viewer-empty { display:grid; place-items:center; position:absolute; inset:0; background:#202322; color:white; }

@@ -186,6 +186,14 @@ def create_app(test_config=None):
         return send_file(BytesIO(html.encode("utf-8")), as_attachment=True,
                          download_name="presentation.html", mimetype="text/html")
 
+    @app.post("/api/export/viewer")
+    def export_viewer():
+        from backend.services.bundles import build_viewer_html, image_files
+        data = validate(request.get_json())
+        html = build_viewer_html(data, image_files(data, app.config["IMAGES_DIR"]))
+        return send_file(BytesIO(html.encode("utf-8")), as_attachment=True,
+                         download_name="presentation-viewer.html", mimetype="text/html")
+
     @app.post("/api/import/zip")
     def import_bundle():
         from backend.services.bundles import read_zip
