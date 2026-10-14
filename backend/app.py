@@ -70,6 +70,8 @@ def validate(data):
                 continue
             if not isinstance(value, str) or len(value) > 20000:
                 raise ValueError(f"Slide {index + 1}: {field['name']} must be text (max 20000 characters).")
+            if field["type"] == "font" and (not value.strip() or len(value) > 200):
+                raise ValueError(f"Slide {index + 1}: {field['name']} must be a font name (1-200 characters).")
             if field["type"] == "choice" and value not in {option["value"] for option in field["options"]}:
                 raise ValueError(f"Slide {index + 1}: invalid {field['name']}.")
             if field["type"] == "color" and not re.fullmatch(r"#[0-9a-fA-F]{6}", value):

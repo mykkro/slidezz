@@ -141,6 +141,14 @@ function slideCanvas(slide, number, layouts) {
     node.style.height = box.h * 96 + "px";
     node.style.fontSize = box.size * 4 / 3 + "px";
     if (box.field === "title") node.style.color = presentation.theme.primary_color;
+    if (box.kind !== "image") {
+      node.style.fontFamily = slide[box.field + "_font_name"] || presentation.theme.font_name;
+      node.style.fontSize = (slide[box.field + "_font_size"] ?? box.size) * 4 / 3 + "px";
+      if (slide[box.field + "_font_color"]) {
+        node.style.color = slide[box.field + "_font_color"];
+        node.style.setProperty("--slide-accent", slide[box.field + "_font_color"]);
+      }
+    }
     if (box.kind === "image") {
       if (value) {
         const image = element("img");
@@ -286,6 +294,37 @@ function markdownField(wrapper, input, slide, field) {
   editor.codemirror.getInputField().setAttribute("aria-label", field.label);
   editors.push(editor);
 }
+const inspectorGroups = new Map();
+function settingsGroup(parent, label, key, open = true) {
+  const details = element("details", "settings-group");
+  details.open = inspectorGroups.get(key) ?? open;
+  details.append(element("summary", "", label));
+  details.addEventListener("toggle", () => {
+    inspectorGroups.set(key, details.open);
+    if (details.open) for (const editor of editors) editor.codemirror.refresh();
+  });
+  const body = element("div", "settings-group-body");
+  details.append(body); parent.append(details);
+  return body;
+}
+function fieldDefault(field) {
+  const value = field.theme_key ? presentation.theme[field.theme_key] : field.default;
+  return field.theme_factor ? value * field.theme_factor : value;
+}
+function groupThemeSettings() {
+  const root = $("theme-settings");
+  for (const [label, ids] of [
+    ["Typography", ["font-name", "theme-title_size", "theme-subtitle_size", "theme-body_size"]],
+    ["Colors", ["primary-color", "text-color"]],
+    ["Background", ["background-color", "panel-color", "panel-transparency"]],
+    ["Spacing", ["theme-margin_left", "theme-margin_right", "theme-margin_top", "theme-margin_bottom", "theme-column_gap", "theme-panel_padding"]],
+    ["Footer", ["footer-text", "footer-color", "theme-footer_margin_bottom"]],
+  ]) {
+    const group = settingsGroup(root, label, "theme:" + label);
+    for (const id of ids) group.append($(id).closest(".mb-3"));
+  }
+  $("layout-settings").remove();
+}
 function renderForm() {
   for (const editor of editors) editor.toTextArea();
   editors = [];
@@ -295,17 +334,30 @@ function renderForm() {
   if (!slide) { $("properties").textContent = "No slide selected"; return; }
   const template = templates[slide.type];
   $("template-label").append(layoutImage(template), document.createTextNode(template.label));
+  const groups = new Map(), typography = new Map();
   for (const field of template.fields) {
+    const groupName = field.group || "Content";
+    if (!groups.has(groupName)) groups.set(groupName, settingsGroup($("properties"), groupName, "slide:" + groupName));
+    let parent = groups.get(groupName);
+    if (field.subgroup) {
+      if (!typography.has(groupName)) typography.set(groupName, settingsGroup(parent, field.subgroup, "type:" + groupName, false));
+      parent = typography.get(groupName);
+    }
     const wrapper = element("div", "field-wrapper");
     const label = element("label", "form-label", field.label);
     const id = "field-" + field.name;
     label.htmlFor = id;
     wrapper.append(label);
-    if (field.type === "color" || field.type === "range") {
-      const input = element("input", field.type === "color" ? "form-control form-control-color" : "form-range");
+    if (field.type === "color" || field.type === "range" || field.type === "font") {
+      const input = element(field.type === "font" ? "select" : "input", field.type === "font" ? "form-select" : field.type === "color" ? "form-control form-control-color" : field.control === "number" ? "form-control" : "form-range");
+      if (field.type === "font") {
+        input.innerHTML = $("font-name").innerHTML;
+        const value = slide[field.name] ?? fieldDefault(field);
+        if (![...input.options].some(option => option.value === value)) input.append(element("option", "", value));
+      }
       input.id = id;
-      input.type = field.type === "color" ? "color" : "range";
-      input.value = slide[field.name] ?? (field.theme_key ? presentation.theme[field.theme_key] : field.default);
+      if (field.type !== "font") input.type = field.type === "color" ? "color" : field.control === "number" ? "number" : "range";
+      input.value = slide[field.name] ?? fieldDefault(field);
       let output;
       if (field.type === "range") {
         input.min = field.min; input.max = field.max; input.step = field.step;
@@ -314,6 +366,7 @@ function renderForm() {
         wrapper.append(output);
       }
       input.oninput = () => {
+        if (field.type === "range" && (input.value === "" || !input.validity.valid)) return;
         slide[field.name] = field.type === "range" ? Number(input.value) : input.value;
         if (output) output.textContent = input.value + field.unit;
         changed();
@@ -331,7 +384,7 @@ function renderForm() {
           if (checkbox.checked) delete slide[field.name];
           else slide[field.name] = field.type === "range" ? Number(input.value) : input.value;
           input.disabled = checkbox.checked;
-          if (checkbox.checked) input.value = presentation.theme[field.theme_key];
+          if (checkbox.checked) input.value = fieldDefault(field);
           if (output) output.textContent = input.value + field.unit;
           changed();
         };
@@ -376,12 +429,12 @@ function renderForm() {
       input.id = id; input.value = slide[field.name] || ""; input.maxLength = 20000;
       if (field.type !== "markdown") input.type = "text";
       wrapper.append(input);
-      $("properties").append(wrapper);
+      parent.append(wrapper);
       if (field.type === "markdown") markdownField(wrapper, input, slide, field);
       else input.oninput = () => { slide[field.name] = input.value; changed(); };
       continue;
     }
-    $("properties").append(wrapper);
+    parent.append(wrapper);
   }
   icons();
 }
@@ -466,6 +519,7 @@ function bind() {
     $("theme-" + setting.name).oninput = event => {
       if (event.target.value === "" || !event.target.validity.valid) return;
       presentation.theme[setting.name] = Number(event.target.value);
+      renderForm();
       changed();
     };
   }
@@ -631,6 +685,7 @@ async function initialize() {
     }
     selectTemplate($("template-select").value);
     $("template-select").onchange = () => selectTemplate($("template-select").value);
+    groupThemeSettings();
     syncTheme(); bind(); selectSlide(0); icons();
   } catch (error) { showError(error); }
 }

@@ -60,6 +60,31 @@ def register(template):
         dict(name="background_panel_transparency", type="range", label="Panel transparency",
              default=50, min=0, max=100, step=1, unit="%", theme_key="background_panel_transparency"),
     ])
+    text_boxes = {item["field"]: item for item in template.layout if item["kind"] != "image"}
+    for editable in template.schema:
+        name = editable["name"]
+        if name.startswith("background_"):
+            editable["group"] = "Background"
+        elif name in ("author", "institution", "date", "attribution"):
+            editable["group"] = "Details"
+        else:
+            source = next((f for f in template.schema if f["type"] == "image"
+                           and (name == f["name"] or name.startswith(f["name"] + "_"))), None)
+            editable["group"] = source["label"] if source else editable["label"]
+    for name, item in text_boxes.items():
+        source = next(f for f in template.schema if f["name"] == name)
+        size_key = "title_size" if name == "title" else "subtitle_size" if name == "subtitle" else "body_size"
+        baseline = 30 if name == "title" else 18 if name == "subtitle" else 20
+        common = dict(group=source["group"], subgroup="Typography")
+        template.schema.extend([
+            dict(name=name + "_font_name", type="font", label="Font", default="Aptos",
+                 theme_key="font_name", **common),
+            dict(name=name + "_font_size", type="range", label="Font size", default=item["size"],
+                 min=8, max=96, step="any", unit=" pt", control="number", theme_key=size_key,
+                 theme_factor=item["size"] / baseline, **common),
+            dict(name=name + "_font_color", type="color", label="Text color", default="#263631",
+                 theme_key="primary_color" if name == "title" else "text_color", **common),
+        ])
     _registry[template.type_name] = template
 
 

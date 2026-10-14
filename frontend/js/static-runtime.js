@@ -48,6 +48,7 @@
           if (typeof value !== "number" || !Number.isFinite(value) || value < field.min || value > field.max) throw new Error("Invalid " + field.name + ".");
         } else {
           if (typeof value !== "string" || value.length > 20000) throw new Error(field.name + " must be text (max 20000 characters).");
+          if (field.type === "font" && (!value.trim() || value.length > 200)) throw new Error(field.name + " must be a font name (1-200 characters).");
           if (field.type === "choice" && !field.options.some(option => option.value === value)) throw new Error("Invalid " + field.name + ".");
           if (field.type === "color" && !/^#[0-9a-f]{6}$/i.test(value)) throw new Error("Invalid " + field.name + ".");
         }

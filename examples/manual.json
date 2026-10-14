@@ -110,7 +110,7 @@
     {
       "type": "content",
       "title": "Fonts without a CDN",
-      "markdown": "The editor includes six free font families, served locally.\n\nChoose a family in **Theme**. Download the font pack when you need the same fonts on another computer.\n\nInstall the TTF files before opening the PPTX to minimize font substitution. The manual uses Arial for portability."
+      "markdown": "Six free font families are bundled locally.\n\nIn **Theme > Typography**, choose the font and default title, subtitle and body sizes.\n\nEach text panel has its own **Typography** section: override font, size or color, or keep **Use theme** checked.\n\nDownload and install the TTF pack on computers opening your PPTX. The manual uses Arial for portability."
     },
     {
       "type": "two_columns",

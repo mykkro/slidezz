@@ -393,3 +393,51 @@ def test_manual_covers_templates_and_resolves_curated_images():
     assert {slide["type"] for slide in data["slides"]} == set(get_all_templates())
     missing = [name for name in referenced_images(data) if not (root / "images" / name).is_file()]
     assert missing == ["manual-missing-example.png"]
+def test_typography_overrides_are_optional_and_exported():
+    data = validate({"theme": {"font_name": "Arial"}, "slides": [
+        {"type": "content", "title": "Specific title", "title_font_size": 42,
+         "title_font_name": "Lato", "title_font_color": "#123456",
+         "markdown": "## Heading\n\n**Bold** and *italic*",
+         "markdown_font_size": 16, "markdown_font_name": "PT Serif",
+         "markdown_font_color": "#654321"},
+        {"type": "title", "title": "Inherited title"}]})
+    assert "title_font_size" not in data["slides"][1]
+    output = BytesIO()
+    generate(data, output)
+    output.seek(0)
+    deck = Presentation(output)
+    title = next(shape for shape in deck.slides[0].shapes if shape.has_text_frame and shape.text == "Specific title")
+    paragraph = title.text_frame.paragraphs[0]
+    assert paragraph.font.size.pt == 42
+    assert paragraph.font.name == "Lato"
+    assert str(paragraph.font.color.rgb) == "123456"
+    body = next(shape for shape in deck.slides[0].shapes if shape.has_text_frame and "Heading" in shape.text)
+    assert body.text_frame.paragraphs[0].font.size.pt == 21
+    assert body.text_frame.paragraphs[1].font.size.pt == 16
+    assert body.text_frame.paragraphs[1].font.name == "PT Serif"
+    assert str(body.text_frame.paragraphs[0].font.color.rgb) == "654321"
+    inherited = next(shape for shape in deck.slides[1].shapes if shape.has_text_frame and shape.text == "Inherited title")
+    assert inherited.text_frame.paragraphs[0].font.size.pt == 44
+    assert inherited.text_frame.paragraphs[0].font.name == "Arial"
+
+
+@pytest.mark.parametrize("name,value", [
+    ("title_font_size", 0), ("title_font_size", 97), ("title_font_size", True),
+    ("title_font_size", float("nan")), ("title_font_name", ""), ("title_font_name", "a" * 201),
+    ("title_font_color", "red"),
+])
+def test_invalid_typography_is_rejected(name, value):
+    with pytest.raises(ValueError):
+        validate({"slides": [{"type": "content", name: value}]})
+
+
+def test_typography_schema_has_groups_for_every_text_panel():
+    for template in get_all_templates().values():
+        assert all(field.get("group") for field in template.schema)
+        for panel in template.layout:
+            if panel["kind"] != "image":
+                fields = {field["name"]: field for field in template.schema}
+                for suffix in ("font_size", "font_name", "font_color"):
+                    field = fields[panel["field"] + "_" + suffix]
+                    assert field["subgroup"] == "Typography"
+                    assert field["theme_key"]

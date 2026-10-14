@@ -101,10 +101,11 @@ def render_pptx(prs, template, data, theme, number, images_dir=None):
             paragraph = frame.paragraphs[0] if i == 0 else frame.add_paragraph()
             paragraph.space_after = Pt(10)
             heading = block.name.startswith("h")
-            paragraph.font.name = theme["font_name"]
-            paragraph.font.size = Pt(item["size"] + (5 if heading else 0))
+            paragraph.font.name = data.get(item["field"] + "_font_name", theme["font_name"])
+            paragraph.font.size = Pt(data.get(item["field"] + "_font_size", item["size"]) + (5 if heading else 0))
             paragraph.font.color.rgb = RGBColor.from_string(
-                (theme["primary_color"] if item["field"] == "title" or heading else theme["text_color"])[1:])
+                data.get(item["field"] + "_font_color",
+                         theme["primary_color"] if item["field"] == "title" or heading else theme["text_color"])[1:])
             if block.name == "li":
                 parent = block.parent
                 depth = len([p for p in block.parents if p.name in ("ul", "ol")])

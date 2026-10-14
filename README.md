@@ -83,6 +83,13 @@ Old deck references are mapped to `blue-light-mesh.png` and `smoke-blue-blush.pn
 
 ## Editing
 
+The theme inspector is organized into collapsible Typography, Colors, Background,
+Spacing and Footer groups. The slide inspector groups related content and image
+controls, with a collapsible Typography subsection for each text panel.
+Set its font family, size (8-96 pt) or text color, or leave **Use theme** checked
+to inherit the presentation style. These per-panel overrides are included in
+JSON/YAML/ZIP/HTML and editable PPTX exports; Markdown formatting still applies.
+
 Six free font families are bundled locally: Lato, Fira Sans, PT Sans, PT Serif,
 Barlow and IBM Plex Mono. Each includes regular, bold, italic and bold italic.
 Choose one in the Theme tab; the browser loads its TTF files without external requests.
@@ -221,9 +228,12 @@ register(LayoutTemplate(
 ```
 
 `field(name, type, label, default)` declares the editable schema. Supported types
-are `text`, `markdown` and `image`. The browser creates one form control per field,
+include `text`, `markdown`, `image`, `font`, `color`, `range` and `choice`.
+The browser creates one form control per field,
 including independent Markdown editors for templates with multiple rich text fields.
 Image fields used in pane layouts automatically gain fit and alignment choice controls.
+Text and Markdown boxes gain optional font family, size and color controls.
+The schema's `group` and `subgroup` properties place fields into collapsible sections.
 `box(field, kind, x, y, width, height, font_size)` defines geometry in inches
 on a 13.333 x 7.5 inch slide; font sizes are points. Keep boxes above the footer
 at y=7. The browser and PPTX renderer both use this layout.
