@@ -101,6 +101,10 @@ Old deck references are mapped to `blue-light-mesh.png` and `smoke-blue-blush.pn
 
 ## Editing
 
+For text-first authoring, see the [YAML Authoring Guide](AUTHORING.md): a complete
+importable deck covering all eight layouts, every editable field, theme settings,
+metadata, image controls and typography overrides.
+
 Click the presentation name in the top bar, or open the inspector's **Presentation**
 tab, to edit its title, author, subject, description, keywords, category and document
 language. These are document-wide metadata, separate from text on individual slides.
