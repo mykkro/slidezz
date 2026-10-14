@@ -57,7 +57,7 @@ accounts or collaboration. Bind to localhost when running it on your computer.
 
 ## Demo And Manual
 
-Build the 28-slide manual with the command below and open `dist/slidezz-manual.html`
+Build the 29-slide manual with the command below and open `dist/slidezz-manual.html`
 without a backend, or import
 [its JSON source](examples/manual.json) into the Python editor. The manual covers
 all eight layouts, Markdown, image fit/alignment, themes, geometry, fonts,
@@ -82,6 +82,11 @@ The original `blue.jpg` and `smoke.jpg` have been replaced with generated backgr
 Old deck references are mapped to `blue-light-mesh.png` and `smoke-blue-blush.png`.
 
 ## Editing
+
+Open the toolbar's **Editor settings** menu to select English or Czech and switch
+between light and dark appearance. Preferences are saved in your browser and work
+in standalone HTML too. They affect only the editor, not slide content or exported
+presentation themes.
 
 The theme inspector is organized into collapsible Typography, Colors, Background,
 Spacing and Footer groups. The slide inspector groups related content and image

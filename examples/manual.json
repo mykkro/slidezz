@@ -167,6 +167,12 @@
       "markdown": "1. Register a `LayoutTemplate` in the Python template registry.\n2. Declare editable fields in its schema.\n3. Define the text, Markdown and image boxes.\n4. Reuse the shared renderer and layout geometry.\n5. Add tests and rebuild the standalone HTML.\n\nThe field editor and layout icon follow the registered definition."
     },
     {
+      "type": "two_columns",
+      "title": "Make the editor yours",
+      "left_markdown": "## Light or dark\n\nOpen **Editor settings** in the toolbar and switch **Dark mode** on or off.\n\nThis changes the editor's panels, controls and text editors. It does not change your slide theme or exported presentation.",
+      "right_markdown": "## English or Czech\n\nChoose a language in the same menu.\n\nLabels, tooltips, statuses and confirmations are localized. Your slide content stays as written.\n\nPreferences are saved in your browser and work in standalone HTML too."
+    },
+    {
       "type": "quote",
       "title": "Keep it clear",
       "quote": "One idea per slide.\n\nEnough space to see it.\n\nA preview before you share it.",

@@ -565,7 +565,7 @@ async function validateImportSource(version) {
   } catch (error) {
     if (version !== importValidationVersion || !$("import-dialog").open) return;
     $("import-validation").textContent = "Invalid design";
-    $("import-error").textContent = error.message;
+    $("import-error").textContent = format === "json" && error instanceof SyntaxError ? "Invalid JSON: " + error.message : error.message;
     $("json-input").setAttribute("aria-invalid", "true");
     $("apply-import").disabled = true;
     return;
@@ -629,9 +629,9 @@ function bindImport() {
     }
     if (zip && !importArchive) return;
     const unsaved = changeVersion !== savedVersion;
-    if ((unsaved || presentation.slides.length) && !window.confirm(unsaved
+    if ((unsaved || presentation.slides.length) && !window.confirm(SlidezzUI.translate(unsaved
       ? "You have unsaved changes. Discard them and apply this design?"
-      : "Replace the current presentation with this design?")) return;
+      : "Replace the current presentation with this design?"))) return;
     applyingImport = true;
     const applicationVersion = importValidationVersion;
     $("apply-import").disabled = true;
@@ -753,7 +753,7 @@ function bind() {
     finally { event.target.value = ""; }
   };
   window.addEventListener("beforeunload", event => {
-    if ($("save-status").textContent !== "Saved" && $("save-status").textContent !== "Ready") {
+    if (changeVersion !== savedVersion) {
       event.preventDefault(); event.returnValue = "";
     }
   });
