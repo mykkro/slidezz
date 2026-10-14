@@ -187,7 +187,7 @@ function checkOverflow() {
   const overflow = nodes.some(node => node.scrollHeight > node.clientHeight + 2 || node.scrollWidth > node.clientWidth + 2);
   $("overflow-status").textContent = overflow ? "Text exceeds the slide area" : "";
 }
-async function render() {
+async function render(revealSelection = false) {
   const version = ++renderVersion;
   let layouts;
   try {
@@ -203,6 +203,9 @@ async function render() {
   } catch (error) { showError(error); return; }
   if (version !== renderVersion) return;
   resizeObserver.disconnect();
+  const slideList = $("slides");
+  const scrollTop = slideList.scrollTop;
+  const restoreListFocus = slideList.contains(document.activeElement);
   $("slides").replaceChildren();
   $("slide-count").textContent = presentation.slides.length;
   const ready = [];
@@ -234,6 +237,14 @@ async function render() {
     mount(viewport, built.canvas);
     ready.push(built.ready);
   });
+  slideList.scrollTop = scrollTop;
+  const activeItem = slideList.querySelector(".slide-item.active");
+  if (restoreListFocus && activeItem) activeItem.focus({preventScroll:true});
+  if (revealSelection && activeItem) {
+    const bounds = slideList.getBoundingClientRect(), itemBounds = activeItem.getBoundingClientRect();
+    if (itemBounds.top < bounds.top) slideList.scrollTop -= bounds.top - itemBounds.top;
+    else if (itemBounds.bottom > bounds.bottom) slideList.scrollTop += itemBounds.bottom - bounds.bottom;
+  }
   const slide = current();
   $("preview").hidden = !slide;
   $("empty-preview").hidden = !!slide;
@@ -257,7 +268,7 @@ async function render() {
 }
 function selectSlide(index) {
   selected = index;
-  render();
+  render(true);
   renderForm();
 }
 function markdownField(wrapper, input, slide, field) {
