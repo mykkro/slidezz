@@ -1,0 +1,24 @@
+@font-face { font-family:'Lato'; font-style:normal; font-weight:400; font-display:swap; src:url('./lato/Lato-Regular.ttf') format('truetype'); }
+@font-face { font-family:'Lato'; font-style:normal; font-weight:700; font-display:swap; src:url('./lato/Lato-Bold.ttf') format('truetype'); }
+@font-face { font-family:'Lato'; font-style:italic; font-weight:400; font-display:swap; src:url('./lato/Lato-Italic.ttf') format('truetype'); }
+@font-face { font-family:'Lato'; font-style:italic; font-weight:700; font-display:swap; src:url('./lato/Lato-BoldItalic.ttf') format('truetype'); }
+@font-face { font-family:'Fira Sans'; font-style:normal; font-weight:400; font-display:swap; src:url('./firasans/FiraSans-Regular.ttf') format('truetype'); }
+@font-face { font-family:'Fira Sans'; font-style:normal; font-weight:700; font-display:swap; src:url('./firasans/FiraSans-Bold.ttf') format('truetype'); }
+@font-face { font-family:'Fira Sans'; font-style:italic; font-weight:400; font-display:swap; src:url('./firasans/FiraSans-Italic.ttf') format('truetype'); }
+@font-face { font-family:'Fira Sans'; font-style:italic; font-weight:700; font-display:swap; src:url('./firasans/FiraSans-BoldItalic.ttf') format('truetype'); }
+@font-face { font-family:'PT Sans'; font-style:normal; font-weight:400; font-display:swap; src:url('./ptsans/PT_Sans-Web-Regular.ttf') format('truetype'); }
+@font-face { font-family:'PT Sans'; font-style:normal; font-weight:700; font-display:swap; src:url('./ptsans/PT_Sans-Web-Bold.ttf') format('truetype'); }
+@font-face { font-family:'PT Sans'; font-style:italic; font-weight:400; font-display:swap; src:url('./ptsans/PT_Sans-Web-Italic.ttf') format('truetype'); }
+@font-face { font-family:'PT Sans'; font-style:italic; font-weight:700; font-display:swap; src:url('./ptsans/PT_Sans-Web-BoldItalic.ttf') format('truetype'); }
+@font-face { font-family:'PT Serif'; font-style:normal; font-weight:400; font-display:swap; src:url('./ptserif/PT_Serif-Web-Regular.ttf') format('truetype'); }
+@font-face { font-family:'PT Serif'; font-style:normal; font-weight:700; font-display:swap; src:url('./ptserif/PT_Serif-Web-Bold.ttf') format('truetype'); }
+@font-face { font-family:'PT Serif'; font-style:italic; font-weight:400; font-display:swap; src:url('./ptserif/PT_Serif-Web-Italic.ttf') format('truetype'); }
+@font-face { font-family:'PT Serif'; font-style:italic; font-weight:700; font-display:swap; src:url('./ptserif/PT_Serif-Web-BoldItalic.ttf') format('truetype'); }
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:400; font-display:swap; src:url('./barlow/Barlow-Regular.ttf') format('truetype'); }
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:700; font-display:swap; src:url('./barlow/Barlow-Bold.ttf') format('truetype'); }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:400; font-display:swap; src:url('./barlow/Barlow-Italic.ttf') format('truetype'); }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:700; font-display:swap; src:url('./barlow/Barlow-BoldItalic.ttf') format('truetype'); }
+@font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:400; font-display:swap; src:url('./ibmplexmono/IBMPlexMono-Regular.ttf') format('truetype'); }
+@font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:700; font-display:swap; src:url('./ibmplexmono/IBMPlexMono-Bold.ttf') format('truetype'); }
+@font-face { font-family:'IBM Plex Mono'; font-style:italic; font-weight:400; font-display:swap; src:url('./ibmplexmono/IBMPlexMono-Italic.ttf') format('truetype'); }
+@font-face { font-family:'IBM Plex Mono'; font-style:italic; font-weight:700; font-display:swap; src:url('./ibmplexmono/IBMPlexMono-BoldItalic.ttf') format('truetype'); }

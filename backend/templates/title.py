@@ -7,53 +7,62 @@ from backend.paths import PROJECT_ROOT
 
 
 class TitleTemplate(SlideTemplate):
+
     type_name = "title"
 
-    def render(self, prs, slide_data, theme):
+    supports_background = True
+
+    schema = [
+        {
+            "name": "title",
+            "type": "text",
+            "label": "Title",
+        },
+        {
+            "name": "subtitle",
+            "type": "text",
+            "label": "Subtitle",
+        },
+        {
+            "name": "author",
+            "type": "text",
+            "label": "Author",
+        },
+        {
+            "name": "institution",
+            "type": "text",
+            "label": "Institution",
+        },
+        {
+            "name": "date",
+            "type": "text",
+            "label": "Date",
+        },
+        {
+            "name": "background_image",
+            "type": "image",
+            "label": "Background Image",
+        },
+    ]
+
+    def render(
+        self,
+        prs,
+        slide_data,
+        theme,
+        page_number,
+    ):
         slide = prs.slides.add_slide(
             prs.slide_layouts[6]
         )
 
-        image_name = slide_data.get(
-            "background_image"
-        )
-
-        if image_name:
-            image_path = (
-                PROJECT_ROOT /
-                "images" /
-                image_name
+        has_background = False
+        if self.supports_background:
+            has_background = self.add_background(
+                slide,
+                prs,
+                slide_data,
             )
-
-            if image_path.exists():
-                slide.shapes.add_picture(
-                    str(image_path),
-                    0,
-                    0,
-                    prs.slide_width,
-                    prs.slide_height,
-                )
-
-                """
-                overlay = slide.shapes.add_shape(
-                    MSO_AUTO_SHAPE_TYPE.RECTANGLE,
-                    0,
-                    0,
-                    prs.slide_width,
-                    prs.slide_height,
-                )
-
-                overlay.fill.solid()
-                overlay.fill.fore_color.rgb = RGBColor(
-                    0,
-                    0,
-                    0,
-                )
-
-                overlay.fill.transparency = 45
-
-                overlay.line.fill.background()
-                """
 
         title_box = slide.shapes.add_textbox(
             Inches(0.8),
@@ -77,7 +86,7 @@ class TitleTemplate(SlideTemplate):
             theme["title_size"]
         )
 
-        if image_name:
+        if has_background:
             title_font.color.rgb = RGBColor(
                 255,
                 255,
@@ -116,7 +125,7 @@ class TitleTemplate(SlideTemplate):
             theme["subtitle_size"]
         )
 
-        if image_name:
+        if has_background:
             subtitle_font.color.rgb = RGBColor(
                 255,
                 255,

@@ -1,0 +1,61 @@
+{
+  "theme": {
+    "font_name": "Arial",
+    "primary_color": "#16745C",
+    "background_color": "#FFFFFF",
+    "footer_text": "FIELD NOTES / 2026"
+  },
+  "slides": [
+    {
+      "type": "title",
+      "title": "A new perspective",
+      "subtitle": "Ideas worth sharing",
+      "author": "The research team",
+      "institution": "Field Notes",
+      "date": "October 2026",
+      "background_image": ""
+    },
+    {
+      "type": "image_left_content",
+      "title": "Make room for discovery",
+      "image": "blue-light-mesh.png",
+      "markdown": "## A clearer view\n\nGood ideas begin with a little curiosity.\n\n- Explore what is possible\n- Connect the **important details**\n- Turn insight into action"
+    },
+    {
+      "type": "content",
+      "title": "The big picture",
+      "markdown": "## What matters\n\n- A clear direction\n- **Meaningful** progress\n- Room for new ideas",
+      "background_image": ""
+    },
+    {
+      "type": "content_left_image",
+      "title": "A closer look",
+      "image": "smoke-blue-blush.png",
+      "markdown": "## Follow the evidence\n\nLook carefully. Ask better questions.\n\n1. Observe the details\n2. Test the idea\n3. Share what you learn"
+    },
+    {
+      "type": "double_image_content",
+      "title": "Two perspectives",
+      "left_image": "blue-light-mesh.png",
+      "right_image": "smoke-blue-blush.png",
+      "markdown": "A different view of the same story."
+    },
+    {
+      "type": "two_columns",
+      "title": "Compare and consider",
+      "left_markdown": "## Today\n\n- Understand the challenge\n- Gather evidence",
+      "right_markdown": "## Tomorrow\n\n- Test the idea\n- Share the results"
+    },
+    {
+      "type": "quote",
+      "title": "A thought to take away",
+      "quote": "Progress begins with a **good question**.",
+      "attribution": "The team"
+    },
+    {
+      "type": "section",
+      "title": "The next chapter",
+      "subtitle": "From ideas to action"
+    }
+  ]
+}

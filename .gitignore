@@ -98,3 +98,14 @@ Thumbs.db
 
 .env
 .env.local
+.env.*
+!.env.example
+!.env.sample
+
+# Local verification and uploaded gallery assets
+test-results/
+images/upload-*
+storage/presentations/*
+!storage/presentations/.gitkeep
+.codex_apply_edits.py
+frontend/assets/sl-dezz-*.png

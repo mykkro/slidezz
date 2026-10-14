@@ -1,0 +1,72 @@
+{
+  "repository": "https://github.com/google/fonts",
+  "commit": "67bc647ce1910e92f461bcc82aae30f21d21a9cc",
+  "families": [
+    {
+      "name": "Lato",
+      "directory": "lato",
+      "files": [
+        "Lato-Regular.ttf",
+        "Lato-Bold.ttf",
+        "Lato-Italic.ttf",
+        "Lato-BoldItalic.ttf"
+      ],
+      "license": "OFL.txt"
+    },
+    {
+      "name": "Fira Sans",
+      "directory": "firasans",
+      "files": [
+        "FiraSans-Regular.ttf",
+        "FiraSans-Bold.ttf",
+        "FiraSans-Italic.ttf",
+        "FiraSans-BoldItalic.ttf"
+      ],
+      "license": "OFL.txt"
+    },
+    {
+      "name": "PT Sans",
+      "directory": "ptsans",
+      "files": [
+        "PT_Sans-Web-Regular.ttf",
+        "PT_Sans-Web-Bold.ttf",
+        "PT_Sans-Web-Italic.ttf",
+        "PT_Sans-Web-BoldItalic.ttf"
+      ],
+      "license": "OFL.txt"
+    },
+    {
+      "name": "PT Serif",
+      "directory": "ptserif",
+      "files": [
+        "PT_Serif-Web-Regular.ttf",
+        "PT_Serif-Web-Bold.ttf",
+        "PT_Serif-Web-Italic.ttf",
+        "PT_Serif-Web-BoldItalic.ttf"
+      ],
+      "license": "OFL.txt"
+    },
+    {
+      "name": "Barlow",
+      "directory": "barlow",
+      "files": [
+        "Barlow-Regular.ttf",
+        "Barlow-Bold.ttf",
+        "Barlow-Italic.ttf",
+        "Barlow-BoldItalic.ttf"
+      ],
+      "license": "OFL.txt"
+    },
+    {
+      "name": "IBM Plex Mono",
+      "directory": "ibmplexmono",
+      "files": [
+        "IBMPlexMono-Regular.ttf",
+        "IBMPlexMono-Bold.ttf",
+        "IBMPlexMono-Italic.ttf",
+        "IBMPlexMono-BoldItalic.ttf"
+      ],
+      "license": "OFL.txt"
+    }
+  ]
+}

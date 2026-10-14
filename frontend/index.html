@@ -1,66 +1,104 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Slides Maker</title>
-    <link rel="stylesheet" href="/static/css/app.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slidezz</title>
+  <link rel="icon" type="image/png" href="/static/assets/slidezz-mark.png">
+  <link rel="stylesheet" href="/static/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/vendor/easymde/easymde.min.css">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="stylesheet" href="/static/fonts/fonts.css">
+  <script defer src="/static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script defer src="/static/vendor/easymde/easymde.min.js"></script>
+  <script defer src="/static/vendor/lucide/lucide.min.js"></script>
+  <script defer src="/static/js/app.js"></script>
 </head>
 <body>
-
-<h1>Slides Maker</h1>
-
-<button id="add-title">
-    Add Title Slide
-</button>
-
-<button id="export-pptx">
-    Export PPTX
-</button>
-
-<h2>Presentation</h2>
-
-<label>Font</label>
-<input id="font-name" value="Aptos">
-
-<label>Primary Color</label>
-<input id="primary-color"
-       type="color"
-       value="#0055AA">
-
-<label>Background Color</label>
-<input id="background-color"
-       type="color"
-       value="#ffffff">
-
-<h3>Background</h3>
-
-<div id="gallery"></div>
-
-<h2>Selected Slide</h2>
-
-<div id="properties">
-
-    <label>Title</label><br>
-    <input id="slide-title" type="text"><br><br>
-
-    <label>Subtitle</label><br>
-    <input id="slide-subtitle" type="text"><br><br>
-
-    <label>Author</label><br>
-    <input id="slide-author" type="text"><br><br>
-
-    <label>Institution</label><br>
-    <input id="slide-institution" type="text"><br><br>
-
-    <label>Date</label><br>
-    <input id="slide-date" type="text"><br><br>
-
-</div>
-
-<h3>Slides</h3>
-
-<div id="slides"></div>
-
-<script src="/static/js/app.js"></script>
-
+<header class="topbar">
+  <a href="/" class="brand" aria-label="Slidezz"><img src="/static/assets/slidezz-mark.png" class="brand-symbol" alt=""><span>Slidezz</span></a>
+  <span class="document-name">Untitled presentation</span>
+  <span id="save-status" class="save-status" role="status">Ready</span>
+  <div class="top-actions">
+    <button class="btn btn-light btn-sm" id="start-presentation"><i data-lucide="play"></i><span>Present</span></button>
+    <button class="btn btn-light btn-sm" id="open-import"><i data-lucide="file-input"></i><span>Import</span></button>
+    <button class="btn btn-light btn-sm" id="download-json"><i data-lucide="braces"></i><span>JSON</span></button>
+    <button class="btn btn-light btn-sm" id="download-yaml"><i data-lucide="file-code"></i><span>YAML</span></button>
+    <div class="dropdown bundle-dropdown">
+      <button class="btn btn-light btn-sm" id="bundle-menu-button" data-bs-toggle="dropdown" aria-expanded="false"><i data-lucide="package"></i><span>Bundle</span><i data-lucide="chevron-down"></i></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button id="export-zip" class="dropdown-item" type="button"><i data-lucide="archive"></i>ZIP with images</button></li>
+        <li><button id="export-html" class="dropdown-item" type="button"><i data-lucide="file-code"></i>Standalone HTML</button></li>
+      </ul>
+    </div>
+    <button class="btn btn-primary btn-sm" id="export-pptx"><i data-lucide="download"></i><span>Export PPTX</span></button>
+  </div>
+</header>
+<div id="error-banner" class="alert alert-danger app-alert" role="alert" hidden></div>
+<main class="workspace">
+  <aside class="slide-panel" aria-label="Slides">
+    <div class="panel-heading"><h1>Slides <span id="slide-count" class="count">0</span></h1></div>
+    <div class="add-controls">
+      <select id="template-select" hidden aria-label="Slide template"></select>
+      <div class="dropdown template-dropdown">
+        <button id="template-picker" class="btn btn-light template-picker" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Choose slide layout"><img id="selected-template-icon" class="layout-icon" alt=""><span id="selected-template-name"></span><i data-lucide="chevron-down"></i></button>
+        <ul id="template-menu" class="dropdown-menu"></ul>
+      </div>
+      <button id="add-slide" class="btn btn-primary icon-button" title="Add slide" aria-label="Add slide"><i data-lucide="plus"></i></button>
+    </div>
+    <div id="slides" class="slides-list"></div>
+    <div class="slide-actions">
+      <button id="move-up" class="btn btn-light icon-button" title="Move slide up" aria-label="Move slide up"><i data-lucide="arrow-up"></i></button>
+      <button id="move-down" class="btn btn-light icon-button" title="Move slide down" aria-label="Move slide down"><i data-lucide="arrow-down"></i></button>
+      <button id="duplicate-slide" class="btn btn-light icon-button" title="Duplicate slide" aria-label="Duplicate slide"><i data-lucide="copy"></i></button>
+      <button id="delete-slide" class="btn btn-light icon-button danger" title="Delete slide" aria-label="Delete slide"><i data-lucide="trash-2"></i></button>
+    </div>
+  </aside>
+  <section class="preview-panel" aria-label="Slide preview">
+    <div class="preview-heading"><span id="preview-label">Slide preview</span><span class="format-label">16:9</span></div>
+    <div class="preview-stage"><div id="preview" class="slide-viewport"></div><div id="empty-preview" hidden>No slides yet</div></div>
+    <div class="preview-bottom"><button id="previous-slide" class="btn btn-light icon-button" aria-label="Previous slide" title="Previous slide"><i data-lucide="chevron-left"></i></button><span id="slide-position">0 / 0</span><button id="next-slide" class="btn btn-light icon-button" aria-label="Next slide" title="Next slide"><i data-lucide="chevron-right"></i></button><span id="overflow-status" class="text-danger" role="status"></span></div>
+  </section>
+  <aside class="editor-panel" aria-label="Slide editor">
+    <div class="panel-heading"><h2>Inspector</h2><i data-lucide="sliders-horizontal"></i></div>
+    <div class="editor-tabs" role="tablist">
+      <button id="slide-tab" class="active" role="tab" aria-selected="true" aria-controls="slide-settings">Slide</button>
+      <button id="theme-tab" role="tab" aria-selected="false" aria-controls="theme-settings">Theme</button>
+    </div>
+    <div class="editor-scroll">
+      <div id="slide-settings" role="tabpanel" aria-labelledby="slide-tab"><div id="template-label" class="template-label"></div><form id="properties"></form></div>
+      <div id="theme-settings" role="tabpanel" aria-labelledby="theme-tab" hidden>
+        <button id="download-theme" class="btn btn-light btn-sm mb-3" type="button"><i data-lucide="download"></i>Export theme JSON</button>
+        <div class="mb-3"><label for="font-name" class="form-label">Font</label><select id="font-name" class="form-select"><optgroup label="Bundled free fonts"><option>Lato</option><option>Fira Sans</option><option>PT Sans</option><option>PT Serif</option><option>Barlow</option><option>IBM Plex Mono</option></optgroup><optgroup label="System fonts"><option>Aptos</option><option>Arial</option><option>Calibri</option><option>Georgia</option></optgroup></select><a href="/api/fonts/download" class="btn btn-light btn-sm mt-2"><i data-lucide="download"></i>Download fonts (TTF)</a></div>
+        <div class="mb-3"><label for="primary-color" class="form-label">Accent color</label><input id="primary-color" class="form-control form-control-color" type="color"></div>
+        <div class="mb-3"><label for="background-color" class="form-label">Slide background</label><input id="background-color" class="form-control form-control-color" type="color"></div>
+        <div class="mb-3"><label for="text-color" class="form-label">Text color</label><input id="text-color" class="form-control form-control-color" type="color"></div>
+        <div class="mb-3"><label for="footer-color" class="form-label">Footer color</label><input id="footer-color" class="form-control form-control-color" type="color"></div>
+        <div class="mb-3"><label for="panel-color" class="form-label">Panel color</label><input id="panel-color" class="form-control form-control-color" type="color"></div>
+        <div class="mb-3"><label for="panel-transparency" class="form-label">Panel transparency</label><output id="theme-panel-value" class="range-value" for="panel-transparency"></output><input id="panel-transparency" class="form-range" type="range" min="0" max="100" step="1"></div>
+        <div class="mb-3"><label for="footer-text" class="form-label">Footer</label><input id="footer-text" class="form-control" maxlength="200"></div>
+        <div id="layout-settings"></div>
+      </div>
+    </div>
+  </aside>
+</main>
+<dialog id="presentation-dialog" aria-label="Presentation">
+  <div class="presentation-toolbar"><button id="exit-presentation" class="btn btn-light btn-sm"><i data-lucide="arrow-left"></i>Back to editor</button><button id="presentation-fullscreen" class="btn btn-light icon-button" title="Toggle fullscreen" aria-label="Toggle fullscreen"><i data-lucide="maximize"></i></button></div>
+  <div id="presentation-stage"><div id="presentation-preview" class="slide-viewport"></div></div>
+  <div class="presentation-navigation"><button id="presentation-previous" class="btn btn-light icon-button" title="Previous slide" aria-label="Previous slide"><i data-lucide="chevron-left"></i></button><span id="presentation-position"></span><button id="presentation-next" class="btn btn-light icon-button" title="Next slide" aria-label="Next slide"><i data-lucide="chevron-right"></i></button></div>
+</dialog>
+<dialog id="import-dialog" class="app-dialog">
+  <form method="dialog" class="dialog-heading"><h2>Import presentation</h2><button class="btn-close" aria-label="Close"></button></form>
+  <label for="import-format" class="form-label">Format</label><select id="import-format" class="form-select mb-3"><option value="json">JSON</option><option value="yaml">YAML</option><option value="zip">ZIP with images</option></select>
+  <label for="json-file" class="form-label">Presentation file</label><input type="file" id="json-file" class="form-control mb-3" accept=".json,.yaml,.yml,.zip,application/json,application/yaml,text/yaml,application/zip">
+  <div id="import-source"><label for="json-input" class="form-label">Presentation source</label><textarea id="json-input" class="form-control json-input" rows="12" spellcheck="false"></textarea></div>
+  <div id="import-error" class="text-danger mt-2" role="alert"></div>
+  <div class="dialog-actions"><button id="cancel-import" class="btn btn-light">Cancel</button><button id="apply-import" class="btn btn-primary">Replace presentation</button></div>
+</dialog>
+<dialog id="gallery-dialog" class="app-dialog gallery-dialog">
+  <form method="dialog" class="dialog-heading"><h2>Image gallery</h2><button class="btn-close" aria-label="Close"></button></form>
+  <div class="gallery-controls"><label class="btn btn-primary btn-sm"><i data-lucide="upload"></i>Upload image<input id="image-upload" type="file" accept="image/png,image/jpeg,image/webp" hidden></label><button id="clear-image" class="btn btn-light btn-sm">Clear image</button></div>
+  <div id="gallery-error" class="text-danger" role="alert"></div><div id="gallery" class="image-gallery"></div>
+</dialog>
 </body>
 </html>

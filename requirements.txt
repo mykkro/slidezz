@@ -2,3 +2,6 @@ flask
 python-pptx
 pillow
 pydantic
+markdown>=3.7,<4
+beautifulsoup4>=4.12,<5
+PyYAML>=6.0,<7
