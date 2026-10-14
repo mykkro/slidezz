@@ -28,6 +28,25 @@ def test_guide_yaml_examples_import_and_export(tmp_path):
         assert len(Presentation(output).slides) == len(deck["slides"])
 
 
+def test_programmatic_authoring_examples(tmp_path, monkeypatch):
+    import json
+
+    monkeypatch.chdir(tmp_path)
+    snippets = re.findall(r"```python\n(.*?)\n```", SOURCE, re.S)
+    assert len(snippets) == 2
+    for index, snippet in enumerate(snippets):
+        exec(compile(snippet, f"AUTHORING.md:python-example-{index + 1}", "exec"), {})
+    generated = yaml.safe_load((tmp_path / "generated.yaml").read_text(encoding="utf-8"))
+    assert generated == json.loads((tmp_path / "generated.json").read_text(encoding="utf-8"))
+    assert len(generated["slides"]) == 7
+    app = create_app({"TESTING": True, "PRESENTATION_FILE": tmp_path / "saved.json",
+                      "IMAGES_DIR": tmp_path / "images"})
+    response = app.test_client().post("/api/import/yaml", json={
+        "text": (tmp_path / "generated.yaml").read_text(encoding="utf-8")})
+    assert response.status_code == 200, response.json
+    assert len(Presentation(tmp_path / "generated.pptx").slides) == 7
+
+
 def test_guide_covers_all_templates_and_fields():
     example = yaml.safe_load(EXAMPLES[0])
     definitions = get_template_definitions()

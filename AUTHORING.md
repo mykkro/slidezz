@@ -132,6 +132,135 @@ slides:
     background_image: blue-light-mesh.png
 ```
 
+## Generate A Deck Programmatically
+
+Treat a presentation as data, not as a YAML string assembled by concatenation.
+Build dictionaries and lists, then let a YAML serializer handle indentation,
+quotes, Unicode and multiline text. Template names and property names are exactly
+the same as in the complete YAML deck above.
+
+This runnable Python example generates a title, a section divider, one content
+slide per topic, an image/text slide, a comparison and a closing quote. It needs
+PyYAML (`python -m pip install PyYAML`), already included in the app requirements.
+Run it in any directory where you want the output files created.
+
+```python
+import json
+from pathlib import Path
+import yaml
+
+
+def make_content_slide(title, points):
+    # points are Markdown fragments; keep each slide short enough to fit.
+    return {
+        "type": "content",
+        "title": title,
+        "markdown": "\n".join("- " + point for point in points),
+    }
+
+
+topics = [
+    {"title": "What we learned", "points": ["Clear goals help.", "**Evidence** matters."]},
+    {"title": "What comes next", "points": ["Test the idea.", "Share the results."]},
+]
+
+deck = {
+    "metadata": {
+        "title": "Generated project review",
+        "author": "Your team",
+        "language": "en",
+    },
+    "theme": {
+        "font_name": "Lato",
+        "primary_color": "#16745C",
+        "body_size": 20,
+        "footer_text": "Project review",
+    },
+    "slides": [
+        {"type": "title", "title": "Project review", "subtitle": "From data to decisions"},
+        {"type": "section", "title": "Our findings", "subtitle": "Two useful lessons"},
+        *[make_content_slide(topic["title"], topic["points"]) for topic in topics],
+        {
+            "type": "image_left_content",
+            "title": "A closer look",
+            "image": "blue-light-mesh.png",
+            "image_fit": "cover",
+            "image_alignment": "center",
+            "markdown": "## The takeaway\n\nA clear image supports a **clear message**.",
+        },
+        {
+            "type": "two_columns",
+            "title": "Compare options",
+            "left_markdown": "## Option A\n\n- Start small\n- Learn quickly",
+            "right_markdown": "## Option B\n\n- Broader scope\n- More preparation",
+            "right_markdown_font_size": 18,
+        },
+        {"type": "quote", "title": "Takeaway", "quote": "Ask a **better question**.",
+         "attribution": "Your team"},
+    ],
+}
+
+Path("generated.yaml").write_text(
+    yaml.safe_dump(deck, sort_keys=False, allow_unicode=True), encoding="utf-8"
+)
+Path("generated.json").write_text(
+    json.dumps(deck, indent=2, ensure_ascii=False), encoding="utf-8"
+)
+```
+
+Import `generated.yaml` through the editor. The serializer may choose quoted
+multiline strings instead of `|` blocks; both represent the same text and import
+correctly. `sort_keys=False` keeps your chosen field order for readability, while
+slide order is always determined by the `slides` list.
+
+For generated content, use this contract:
+
+- Return one object containing `slides`, optionally `theme` and `metadata`.
+- Use only supported template `type` values and the fields documented below.
+- Use strings for content, filenames and metadata; numbers for sizes/spacing/
+  transparency. Do not emit `null` for inherited properties: omit those keys.
+- Keep metadata separate from visible title-slide content.
+- Supply image files separately; creating a filename reference does not upload it.
+- Treat inserted text as Markdown only in rich-text fields. Escape Markdown
+  punctuation when source data should appear literally.
+- Validate the structure and inspect rendered slides. Schema validation cannot
+  determine whether a long paragraph fits its panel or an image crops well.
+
+### Validate And Export From Python
+
+When running from the Slidezz repository with its requirements installed, use the
+same validator and PPTX generator as the app. This example reads the generated
+YAML, validates it, and exports native editable PowerPoint objects without starting
+a web server. It writes `generated.pptx` in the current directory.
+
+```python
+from pathlib import Path
+import yaml
+from backend.app import validate
+from backend.services.pptx_generator import generate
+
+deck = validate(yaml.safe_load(Path("generated.yaml").read_text(encoding="utf-8")))
+generate(deck, Path("generated.pptx"), images_dir=Path("images"))
+```
+
+`validate` returns the normalized deck with theme defaults filled in and raises
+`ValueError` for unsupported layouts or invalid field values. For untrusted YAML,
+prefer the app's import endpoint/UI, which also enforces its YAML-specific input
+checks; `yaml.safe_load` alone is not a substitute for those checks.
+
+For portable HTML, use the generated **JSON** file with the existing builder:
+
+```sh
+python tools/build_static.py --presentation generated.json --output dist/generated-editor.html
+python tools/build_static.py --presentation generated.json --presentation-only --output dist/generated-viewer.html
+```
+
+The builder resolves referenced images from the repository's `images/` gallery.
+Put assets there before building, or import them through the app and export a
+bundle from the editor. The regular HTML bundle can be edited offline; the viewer
+bundle is read-only. For an automated or AI authoring pipeline, use the field
+reference below as the output contract, then validate and preview before delivery.
+
 ## Slide Building Blocks
 
 `type` is required and must be one of the names below. Other content fields are
