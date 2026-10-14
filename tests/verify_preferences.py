@@ -30,6 +30,15 @@ def check(page, url, label):
     expect(page.locator(".slide-item")).to_have_attribute("aria-label", "Snímek 1: Title")
     expect(page.locator(".topbar")).to_have_css("background-color", "rgb(34, 41, 35)")
     expect(page.locator("body")).to_have_css("color", "rgb(226, 234, 229)")
+    brand = page.locator(".brand")
+    expect(brand).to_have_css("color", "rgb(242, 247, 244)")
+    expect(brand.locator("span")).to_have_css("color", "rgb(242, 247, 244)")
+    expect(brand.locator("img")).to_have_css("background-color", "rgb(242, 247, 244)")
+    brand.hover()
+    expect(brand).to_have_css("color", "rgb(242, 247, 244)")
+    brand.focus()
+    expect(brand).to_have_css("color", "rgb(242, 247, 244)")
+    page.locator("#editor-settings").focus()
     assert page.evaluate("JSON.stringify(presentation)") == original
     assert page.locator("#preview .slide-canvas").inner_html() == canvas
     page.locator("#editor-settings").click()
@@ -70,6 +79,8 @@ def check(page, url, label):
     expect(page.locator("#open-import")).to_have_text("Import")
     expect(page.locator("#editor-settings")).to_have_attribute("title", "Editor settings")
     expect(page.locator(".topbar")).to_have_css("background-color", "rgb(255, 255, 255)")
+    expect(page.locator(".brand")).to_have_css("color", "rgb(38, 54, 49)")
+    expect(page.locator(".brand img")).to_have_css("background-color", "rgba(0, 0, 0, 0)")
     assert page.evaluate("JSON.stringify(presentation)") == original
 
 
