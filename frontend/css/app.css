@@ -38,7 +38,8 @@
 .slide-text-content { flex-shrink:0; width:100%; }
 [data-bs-theme="dark"] .settings-group > summary { background:#29362e; color:#bcd0c2; }
 [data-bs-theme="dark"] .settings-group[open] > summary { background:#364b3e; color:#e2f0e7; }
-#presentation-dialog { width:100vw; height:100dvh; max-width:none; max-height:none; margin:0; padding:0; border:0; background:#202322; color:white; display:grid; grid-template-rows:56px minmax(0,1fr) 56px; }
+#presentation-dialog { width:100vw; height:100dvh; max-width:none; max-height:none; margin:0; padding:0; border:0; background:#202322; color:white; display:block; }
+#presentation-shell { width:100%; height:100%; background:#202322; color:white; display:grid; grid-template-rows:56px minmax(0,1fr) 56px; }
 #presentation-dialog:not([open]) { display:none; }
 .presentation-toolbar { display:flex; align-items:center; justify-content:space-between; padding:8px 16px; }
 #presentation-stage { display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden; }

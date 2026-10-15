@@ -453,11 +453,11 @@ async function presentSlide(index) {
   $("presentation-next").disabled = presentedIndex === presentation.slides.length - 1;
   sizePresentation();
 }
-function closePresentation() {
+async function closePresentation() {
   if (presentationOnly) return;
   presenterVersion++;
+  if (document.fullscreenElement === $("presentation-shell")) await document.exitFullscreen().catch(() => {});
   $("presentation-dialog").close();
-  if (document.fullscreenElement === $("presentation-dialog")) document.exitFullscreen().catch(() => {});
   if (presentation.slides.length) selectSlide(presentedIndex);
   $("start-presentation").focus();
 }
@@ -474,8 +474,12 @@ function bindPresentation() {
   $("presentation-fullscreen").onclick = async () => {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
-      else await $("presentation-dialog").requestFullscreen();
-    } catch (error) { showError(error); }
+      else {
+        // Browsers reject fullscreen requests on dialog elements themselves.
+        await $("presentation-shell").requestFullscreen();
+        if (!$("presentation-dialog").open && document.fullscreenElement === $("presentation-shell")) await document.exitFullscreen();
+      }
+    } catch (error) { if ($("presentation-dialog").open) showError(error); }
   };
   $("presentation-dialog").addEventListener("keydown", event => {
     let index;

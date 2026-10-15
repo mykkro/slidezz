@@ -111,3 +111,5 @@ storage/presentations/*
 frontend/assets/sl-dezz-*.png
 
 dist/
+venv/
+.venv/
