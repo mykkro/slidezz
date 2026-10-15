@@ -46,7 +46,10 @@ def data_url(content, mime):
 
 def build_static_html(data, images):
     presets = json.loads((FRONTEND_DIR / "assets" / "themes.json").read_text(encoding="utf-8"))
+    manual = json.loads((PROJECT_ROOT / "examples" / "manual.json").read_text(encoding="utf-8"))
     images = dict(images)
+    for name, raw in image_files(manual, PROJECT_ROOT / "images").items():
+        images.setdefault(name, raw)
     for preset in presets:
         name = preset["theme"]["default_background_image"]
         images.setdefault(name, (PROJECT_ROOT / "images" / name).read_bytes())
@@ -83,7 +86,7 @@ def build_static_html(data, images):
     for name, definition in definitions.items():
         definition["icon_url"] = data_url(layout_icon(get_all_templates()[name]).encode(), "image/svg+xml")
     fonts, licenses = bundled_fonts()
-    config = dict(presentation=data, defaults=DEFAULT_THEME, templates=definitions, presets=presets,
+    config = dict(presentation=data, defaults=DEFAULT_THEME, templates=definitions, presets=presets, manual=manual,
                   settings=SETTINGS, images={name: data_url(raw, mimetypes.guess_type(name)[0] or "image/png")
                                             for name, raw in images.items()},
                   fonts=fonts, licenses=licenses, shell=shell, viewer_shell=build_viewer_shell(),

@@ -12,7 +12,7 @@ from backend.services.bundles import build_static_html, build_viewer_html, image
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--presentation", type=Path, default=ROOT / "examples" / "presentation.json")
+    parser.add_argument("--presentation", type=Path, default=ROOT / "examples" / "manual.json")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--presentation-only", action="store_true", help="Build a read-only player without the editor.")
     args = parser.parse_args()

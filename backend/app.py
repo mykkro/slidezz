@@ -95,7 +95,7 @@ def validate(data):
 
 
 def create_default_presentation():
-    return dict(theme=DEFAULT_THEME.copy(), slides=[])
+    return validate(json.loads((PROJECT_ROOT / "examples" / "manual.json").read_text(encoding="utf-8")))
 
 
 def create_app(test_config=None):
@@ -120,6 +120,10 @@ def create_app(test_config=None):
     @app.get("/api/theme/presets")
     def theme_presets():
         return jsonify(json.loads((FRONTEND_DIR / "assets" / "themes.json").read_text(encoding="utf-8")))
+
+    @app.get("/api/manual")
+    def manual():
+        return create_default_presentation()
 
     @app.get("/api/templates")
     def templates():

@@ -229,6 +229,7 @@ function renderedMarkdown(text) {
         case "/api/templates": return response(config.templates);
         case "/api/theme/layout": return response(config.settings);
         case "/api/theme/presets": return response(config.presets);
+        case "/api/manual": return response(validate(config.manual));
         case "/api/presentation": return response(validate(deck));
         case "/api/images":
           if (options.method === "POST") throw new Error("Image upload is available in the Python app. Import a ZIP to add images offline.");

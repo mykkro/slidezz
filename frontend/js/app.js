@@ -616,6 +616,10 @@ function bindImport() {
   };
 }
 function bind() {
+  $("load-manual").onclick = async () => {
+    try { openDesign(await json("/api/manual")); } catch (error) { showError(error); }
+  };
+  $("new-presentation").onclick = () => openDesign({theme:presentation.theme, slides:[]});
   // Presets change shared style; optional resets remove explicit slide overrides.
   for (const preset of themePresets) $("theme-preset").add(new Option(preset.name, preset.id));
   $("theme-preset").onchange = previewPreset;

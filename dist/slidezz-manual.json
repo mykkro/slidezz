@@ -1,0 +1,296 @@
+{
+  "theme": {
+    "font_name": "Arial",
+    "default_background_image": "",
+    "primary_color": "#16745C",
+    "background_color": "#FFFFFF",
+    "title_size": 30,
+    "subtitle_size": 18,
+    "footer_text": "SLIDEZZ / DEMO & MANUAL",
+    "text_color": "#24332D",
+    "footer_color": "#60716B",
+    "background_panel_color": "#FFFFFF",
+    "background_panel_transparency": 50,
+    "margin_left": 0.65,
+    "margin_right": 0.633333,
+    "margin_top": 0.45,
+    "margin_bottom": 0.95,
+    "column_gap": 0.65,
+    "panel_padding": 0.25,
+    "footer_margin_bottom": 0.2,
+    "footer_font_size": 10,
+    "body_size": 18,
+    "font_style": "regular",
+    "text_alignment": "left",
+    "text_vertical_alignment": "top",
+    "footer_font_name": "",
+    "footer_font_style": "regular",
+    "footer_alignment": "left"
+  },
+  "slides": [
+    {
+      "type": "title",
+      "title": "Slidezz",
+      "subtitle": "A practical guide to building your next presentation",
+      "author": "The editor, explained in slides",
+      "institution": "Demo and manual",
+      "date": "October 2026",
+      "background_image": "smoke-blue-blush.png",
+      "notes": ""
+    },
+    {
+      "type": "image",
+      "title": "One image, one idea",
+      "image": "teal-light-wave.png",
+      "image_fit": "cover",
+      "image_alignment": "center",
+      "notes": "The image-with-title layout gives the visual the whole body area. Choose contain to show its full extent. Notes stay off the slide.",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "Style the whole deck",
+      "markdown": "- Apply one of **six coordinated presets** in Theme.\n- Choose whether to replace backgrounds and reset overrides.\n- Set font style, text alignment and footer typography.\n- Open **Speaker notes** for your talking points.",
+      "notes": "Footer bottom margin moves the footer and reduces the body area when necessary. Prezentovat opens presentation mode in Czech.",
+      "background_image": ""
+    },
+    {
+      "type": "image_left_content",
+      "title": "Meet your workspace",
+      "image": "manual-editor.png",
+      "markdown": "## Three panes, one story\n\n- **Left:** your active slides\n- **Middle:** the slide preview\n- **Right:** the selected slide's editable fields\n\nSelect a slide to continue where you left off.",
+      "image_fit": "contain",
+      "image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "Build a deck in minutes",
+      "markdown": "1. Choose a layout and press **+**.\n2. Fill its text and image fields.\n3. Set the presentation theme.\n4. Check the preview for overflow.\n5. Present or export your finished deck.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "section",
+      "title": "Nine layouts",
+      "subtitle": "Choose a structure that fits your message",
+      "background_image": "blue-light-mesh.png",
+      "notes": ""
+    },
+    {
+      "type": "two_columns",
+      "title": "Layouts that tell different stories",
+      "left_markdown": "## Start and explain\n\n- **Title:** subtitle, author, institution, date\n- **Content:** a full-width Markdown panel\n- **Section:** a new chapter\n- **Quote:** a statement and attribution",
+      "right_markdown": "## Show and compare\n\n- **Image + content:** image on the left\n- **Content + image:** image on the right\n- **Two images:** paired pictures and a caption\n- **Two columns:** independent Markdown panels",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "Choose and organize slides",
+      "markdown": "- The layout picker shows **panel diagrams** for all nine layouts.\n- Press **+** to add the chosen layout.\n- Select a thumbnail to edit a slide.\n- Use the arrows to move it up or down.\n- Duplicate a slide to reuse its structure.\n- Delete slides you no longer need.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "content",
+      "title": "Forms follow the template schema",
+      "markdown": "Each template declares the fields it needs.\n\n- Text fields for titles and labels\n- Markdown editors for rich content\n- Image selectors with fit and alignment\n- Color swatches and numeric sliders\n\nThe editor builds the form from that schema.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "two_columns",
+      "title": "Write in Markdown",
+      "left_markdown": "## Rich text\n\nUse **bold**, *italic*, headings and lists.\n\n1. Keep your message focused.\n2. Give each idea room.\n3. Preview before exporting.",
+      "right_markdown": "## Editing tools\n\nThe Markdown toolbar helps format text.\n\n- Links remain clickable in exported slides.\n- Use `inline code` for technical terms.\n- Both columns have independent editors.\n- An overflow warning flags text that needs trimming.",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "image_left_content",
+      "title": "Choose an image",
+      "image": "manual-gallery.png",
+      "markdown": "## The image gallery\n\nSelect an image field to open the gallery.\n\n- Choose a bundled background or picture.\n- Upload **PNG, JPEG or WebP** in the server version.\n- Clear a selection when you no longer need it.\n- Image names are stored in the deck.",
+      "image_fit": "contain",
+      "image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "double_image_content",
+      "title": "Contain or cover",
+      "left_image": "smoke-peach-lilac.png",
+      "left_image_fit": "contain",
+      "right_image": "smoke-peach-lilac.png",
+      "right_image_fit": "cover",
+      "markdown": "**Left: contain** keeps the entire picture. **Right: cover** fills the panel and crops the edges.",
+      "left_image_alignment": "center",
+      "right_image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content_left_image",
+      "title": "Position the crop",
+      "image": "smoke-sage-sky.png",
+      "image_fit": "cover",
+      "image_alignment": "top_left",
+      "markdown": "## Nine anchor positions\n\nChoose a corner, an edge or the center.\n\n- Top left / top / top right\n- Left / center / right\n- Bottom left / bottom / bottom right\n\nAlignment affects cropping with cover and placement with contain.",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "double_image_content",
+      "title": "Presentation-ready backgrounds",
+      "left_image": "blue-light-mesh.png",
+      "right_image": "smoke-blue-blush.png",
+      "markdown": "Choose from four clean blue/teal backgrounds and three subtle smoke variants.",
+      "left_image_fit": "contain",
+      "left_image_alignment": "center",
+      "right_image_fit": "contain",
+      "right_image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "image_left_content",
+      "title": "Missing images stay visible",
+      "image": "manual-missing-example.png",
+      "markdown": "A missing image does not stop the presentation.\n\nIts panel displays **Image ... not found**.\n\nImport a ZIP with its images, upload the missing file, or select another image in the gallery.",
+      "image_fit": "contain",
+      "image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "Readable panels over backgrounds",
+      "background_image": "smoke-sage-sky.png",
+      "background_panel_color": "#FFFFFF",
+      "background_panel_transparency": 50,
+      "markdown": "A colored panel sits between the background and your content.\n\n- **50% transparency** is the default.\n- 0% makes the panel opaque.\n- 100% makes it invisible.\n- Choose a panel color in the theme.\n- Override it on an individual slide when needed.",
+      "notes": ""
+    },
+    {
+      "type": "image_left_content",
+      "title": "Set your presentation theme",
+      "image": "manual-theme.png",
+      "markdown": "## One consistent style\n\nConfigure accent, text, background, panel and footer colors.\n\nChoose a font and footer text.\n\nSlides inherit theme values unless you explicitly override a supported field.",
+      "image_fit": "contain",
+      "image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "Fonts without a CDN",
+      "markdown": "Six free font families are bundled locally.\n\nIn **Theme > Typography**, choose the font and default title, subtitle and body sizes.\n\nEach text panel has its own **Typography** section: override font, size or color, or keep **Use theme** checked.\n\nDownload and install the TTF pack on computers opening your PPTX. The manual uses Arial for portability.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "two_columns",
+      "title": "Tune spacing and scale",
+      "left_markdown": "## Layout geometry\n\n- Left and right margins\n- Top and bottom margins\n- Column gap\n- Panel padding\n- Footer bottom margin",
+      "right_markdown": "## Typography\n\n- Title size\n- Subtitle size\n- Body size\n\nTheme geometry affects both the browser preview and the exported PPTX. Recheck long content after changing sizes.",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "Save state matters",
+      "markdown": "Edits are saved automatically after a short pause.\n\nWatch the status: **Unsaved changes**, **Saving...**, **Saved** or **Save failed**.\n\nThe server version saves to its presentation file. The standalone version saves locally in your browser. Export a file for a portable backup.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "image_left_content",
+      "title": "Import JSON or YAML",
+      "image": "manual-import.png",
+      "markdown": "Choose **Import > Text** and JSON or YAML.\n\nPaste your deck. Syntax is highlighted and validation checks the design before **Apply design** becomes available.\n\nConfirm replacement when prompted. Unsaved edits get an explicit warning.\n\nUse **File** for JSON, YAML or ZIP imports.\n\nA deck has a `theme` and a `slides` array; each slide identifies its template with `type`.",
+      "image_fit": "contain",
+      "image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "two_columns",
+      "title": "Text formats, same deck",
+      "left_markdown": "## JSON\n\nUse the **JSON** button for structured data suitable for scripts and integrations.\n\nImage fields contain filenames, not the image bytes.",
+      "right_markdown": "## YAML\n\nUse **YAML** for a readable, editable document.\n\nMultiline Markdown is exported as literal blocks. YAML imports use a safe parser and must contain JSON-compatible values.",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "Export the theme",
+      "markdown": "Use **Export theme** in the theme panel to download its configuration.\n\nIt includes colors, fonts, transparency, margins, gaps and type sizes.\n\nTo reuse it, put this object in a deck's `theme` property and import the deck. Theme export does not include slides or images.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "two_columns",
+      "title": "Bundle your images",
+      "left_markdown": "## ZIP with images\n\nThe Bundle menu exports:\n\n- `presentation.json`\n- Image files\n- A manifest of image references\n- A standalone `index.html`",
+      "right_markdown": "## Import a ZIP\n\nChoose ZIP in the import dialog.\n\nImages are installed with the deck. Name collisions are handled without overwriting a different existing image. Missing images remain explicit placeholders.",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "content",
+      "title": "A complete offline HTML editor",
+      "markdown": "**Bundle > Standalone HTML** creates a single-file editor with the deck, images, fonts and libraries.\n\nOpen it directly in a browser to edit, present and import/export JSON, YAML or ZIP.\n\nFor viewing only, append `?mode=presentation` or choose **Bundle > Presentation-only HTML**. The latter contains no editor.\n\nOffline mode cannot export PPTX or upload individual images. Import a ZIP to add images.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "content",
+      "title": "Present, then return",
+      "markdown": "Press **Present** to show the selected slide.\n\n- Use arrow keys, Page Up / Down or the navigation buttons.\n- Space advances; Home and End jump to the first or last slide.\n- The fullscreen button removes browser chrome where supported.\n- Press Escape or **Back to editor** to return.\n\nYour current slide and edits are preserved.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "content",
+      "title": "Export editable PowerPoint slides",
+      "markdown": "Press **Export PPTX** in the server version.\n\nText, images and panels are exported into a widescreen 16:9 presentation.\n\nMarkdown formatting, image cropping, theme colors and transparency carry through. Check fonts on the destination computer and review the exported slides before presenting.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "content",
+      "title": "Add your own template",
+      "markdown": "1. Register a `LayoutTemplate` in the Python template registry.\n2. Declare editable fields in its schema.\n3. Define the text, Markdown and image boxes.\n4. Reuse the shared renderer and layout geometry.\n5. Add tests and rebuild the standalone HTML.\n\nThe field editor and layout icon follow the registered definition.",
+      "background_image": "",
+      "notes": ""
+    },
+    {
+      "type": "two_columns",
+      "title": "Make the editor yours",
+      "left_markdown": "## Light or dark\n\nOpen **Editor settings** in the toolbar and switch **Dark mode** on or off.\n\nThis changes the editor's panels, controls and text editors. It does not change your slide theme or exported presentation.",
+      "right_markdown": "## English or Czech\n\nChoose a language in the same menu.\n\nLabels, tooltips, statuses and confirmations are localized. Your slide content stays as written.\n\nPreferences are saved in your browser and work in standalone HTML too.",
+      "notes": "",
+      "background_image": ""
+    },
+    {
+      "type": "quote",
+      "title": "Keep it clear",
+      "quote": "One idea per slide.\n\nEnough space to see it.\n\nA preview before you share it.",
+      "attribution": "A Slidezz working habit",
+      "background_image": "smoke-peach-lilac.png",
+      "notes": ""
+    },
+    {
+      "type": "content_left_image",
+      "title": "Your next presentation starts here",
+      "image": "slidezz-logo.png",
+      "markdown": "## A short checklist\n\n- Choose a layout that supports the message.\n- Trim overflowing text.\n- Check image fit and alignment.\n- Review theme contrast and fonts.\n- Save a ZIP backup.\n- Present or export.\n\n**Make it yours.**",
+      "image_fit": "contain",
+      "image_alignment": "center",
+      "notes": "",
+      "background_image": ""
+    }
+  ]
+}
