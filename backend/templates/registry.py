@@ -52,6 +52,7 @@ def register(template):
             schema.append(dict(name=name + "_alignment", type="choice", label=label + " alignment",
                                default="center", control="alignment", options=IMAGE_ALIGNMENTS))
     template.schema = schema
+    template.schema.append(dict(**field("notes", "notes", "Speaker notes"), group="Speaker notes"))
     if not any(f["name"] == "background_image" for f in template.schema):
         template.schema.append(field("background_image", "image", "Background image"))
     template.schema.extend([
@@ -63,7 +64,9 @@ def register(template):
     text_boxes = {item["field"]: item for item in template.layout if item["kind"] != "image"}
     for editable in template.schema:
         name = editable["name"]
-        if name.startswith("background_"):
+        if name == "notes":
+            editable["group"] = "Speaker notes"
+        elif name.startswith("background_"):
             editable["group"] = "Background"
         elif name in ("author", "institution", "date", "attribution"):
             editable["group"] = "Details"
@@ -77,6 +80,12 @@ def register(template):
         baseline = 30 if name == "title" else 18 if name == "subtitle" else 20
         common = dict(group=source["group"], subgroup="Typography")
         template.schema.extend([
+            dict(name=name + "_font_style", type="choice", label="Font style", default="regular",
+                 theme_key="font_style", control="icons", options=FONT_STYLES, **common),
+            dict(name=name + "_alignment", type="choice", label="Text alignment", default="left",
+                 theme_key="text_alignment", control="icons", options=TEXT_ALIGNMENTS, **common),
+            dict(name=name + "_vertical_alignment", type="choice", label="Vertical alignment", default="top",
+                 theme_key="text_vertical_alignment", control="icons", options=VERTICAL_ALIGNMENTS, **common),
             dict(name=name + "_font_name", type="font", label="Font", default="Aptos",
                  theme_key="font_name", **common),
             dict(name=name + "_font_size", type="range", label="Font size", default=item["size"],
@@ -88,6 +97,13 @@ def register(template):
     _registry[template.type_name] = template
 
 
+FONT_STYLES = [dict(value=value, label=label, icon=icon) for value, label, icon in [
+    ("regular", "Regular", "type"), ("bold", "Bold", "bold"), ("italic", "Italic", "italic"),
+    ("bold_italic", "Bold italic", "type-outline")]]
+TEXT_ALIGNMENTS = [dict(value=value, label=value.title(), icon="align-" + value)
+                   for value in ("left", "center", "right", "justify")]
+VERTICAL_ALIGNMENTS = [dict(value=value, label=value.title(), icon=icon) for value, icon in
+                       [("top", "align-start-vertical"), ("middle", "align-center-vertical"), ("bottom", "align-end-vertical")]]
 TITLE = box("title", "text", .65, .45, 12, .85, 30)
 register(LayoutTemplate("title", "Title", [
     field("title", default="A new perspective"), field("subtitle", default="Ideas worth sharing"),
@@ -100,6 +116,9 @@ register(LayoutTemplate("content", "Content", [
     field("markdown", "markdown", "Content", "## What matters\n\n- A clear direction\n- **Meaningful** progress\n- Room for new ideas"),
     field("background_image", "image"),
 ], [TITLE, box("markdown", "markdown", .65, 1.65, 12, 4.9)]))
+register(LayoutTemplate("image", "Image with title", [
+    field("title", default="In focus"), field("image", "image", default="blue-light-mesh.png"),
+], [TITLE, box("image", "image", .65, 1.65, 12, 4.9)]))
 for name, label, ix, tx in [("image_left_content", "Image + content", .65, 7), ("content_left_image", "Content + image", 7, .65)]:
     register(LayoutTemplate(name, label, [
         field("title", default="A closer look"), field("image", "image", default="blue-light-mesh.png"),

@@ -23,7 +23,7 @@ YAML and JSON describe the same data: an object with `slides`, and optional
 `metadata` and `theme` objects. Slides run in list order on a 16:9 canvas.
 At most 200 slides are accepted. `slides: []` creates an empty deck.
 
-## Complete Deck: All Eight Layouts
+## Complete Deck: All Nine Layouts
 
 This is a complete importable document. The image filenames refer to bundled
 gallery assets. Replace them with filenames from your own gallery when needed.
@@ -40,6 +40,14 @@ metadata:
 
 theme:
   font_name: Lato
+  default_background_image: ""
+  font_style: regular
+  text_alignment: left
+  text_vertical_alignment: top
+  footer_font_name: ""
+  footer_font_style: regular
+  footer_alignment: left
+  footer_font_size: 10
   primary_color: "#16745C"
   background_color: "#FFFFFF"
   text_color: "#263631"
@@ -59,6 +67,12 @@ theme:
   footer_margin_bottom: 0.2
 
 slides:
+  - type: image
+    title: In focus
+    image: teal-light-wave.png
+    image_fit: cover
+    image_alignment: center
+    notes: "Show the visual first, then introduce the main idea."
   - type: title
     title: A new perspective
     subtitle: Ideas worth sharing
@@ -272,6 +286,7 @@ when they are text. Each content string is limited to 20,000 characters.
 | --- | --- | --- |
 | `title` | `title`, `subtitle`, `author`, `institution`, `date` | Large title/subtitle, with three detail lines below. |
 | `content` | `title`, `markdown` | Heading above one full-width rich-text panel. |
+| `image` | `title`, `image` | Heading above one large image pane, with no text column. |
 | `image_left_content` | `title`, `image`, `markdown` | Image left, rich text right. |
 | `content_left_image` | `title`, `markdown`, `image` | Rich text left, image right. |
 | `double_image_content` | `title`, `left_image`, `right_image`, `markdown` | Two images with a short full-width caption underneath. |
@@ -341,7 +356,7 @@ produce a warning rather than stopping the presentation. Older `blue.jpg` and
 
 ### Typography Overrides
 
-Every plain-text or rich-text panel has three optional properties:
+Every plain-text or rich-text panel has these optional font properties:
 `<field>_font_name`, `<field>_font_size`, and `<field>_font_color`.
 For example, `title_font_size` changes only that slide's title, not other titles.
 
@@ -349,6 +364,7 @@ For example, `title_font_size` changes only that slide's title, not other titles
 | --- | --- |
 | `title` | `title`, `subtitle`, `author`, `institution`, `date` |
 | `content` | `title`, `markdown` |
+| `image` | `title` |
 | `image_left_content` | `title`, `markdown` |
 | `content_left_image` | `title`, `markdown` |
 | `double_image_content` | `title`, `markdown` |
@@ -387,6 +403,19 @@ subtitles 24 pt; other slide titles are 30 pt, normal body panels 20 pt, quote t
 32 pt, attribution 18 pt, and title-slide detail lines 16 pt. Markdown headings
 also receive heading styling. Keep enough space for their larger type.
 
+Additional panel controls are `<field>_font_style` (`regular`, `bold`, `italic`,
+`bold_italic`), `<field>_alignment` (`left`, `center`, `right`, `justify`) and
+`<field>_vertical_alignment` (`top`, `middle`, `bottom`). Omit them to inherit
+`font_style`, `text_alignment` and `text_vertical_alignment` from the theme.
+Alignment positions text within its existing panel; it does not move the panel's
+coordinates. Image pane positioning remains controlled by image alignment.
+Markdown emphasis is retained in addition to the panel's selected font style.
+
+Every slide accepts `notes`, a plain-text string of up to 20,000 characters.
+Edit it in the collapsed **Speaker notes** group. Notes are not drawn on slides;
+PPTX exports put them in PowerPoint speaker notes. JSON/YAML and HTML/ZIP retain
+them as data, so do not treat them as confidential when sharing a bundle.
+
 ## Theme Reference
 
 The complete deck above demonstrates every supported theme property. Omitted
@@ -396,6 +425,14 @@ font sizes are points. Numeric ranges include their endpoints.
 | Property | Default | Accepted values / effect |
 | --- | --- | --- |
 | `font_name` | `Aptos` | Font family string, at most 200 characters. |
+| `font_style` | `regular` | `regular`, `bold`, `italic`, `bold_italic`. |
+| `text_alignment` | `left` | `left`, `center`, `right`, `justify`. |
+| `text_vertical_alignment` | `top` | `top`, `middle`, `bottom`. |
+| `footer_font_name` | `""` | Empty inherits the theme font; otherwise font family, at most 200 characters. |
+| `footer_font_size` | `10` | 6-32 pt; adjusts footer box height. |
+| `footer_font_style` | `regular` | `regular`, `bold`, `italic`, `bold_italic`. |
+| `footer_alignment` | `left` | `left`, `center`, `right`, `justify`, within footer/page-number boxes. |
+| `default_background_image` | `""` | Gallery filename copied onto newly added slides; at most 200 characters. Does not retroactively change slides. |
 | `primary_color` | `"#16745C"` | Accent, titles and Markdown headings. |
 | `background_color` | `"#FFFFFF"` | Solid slide background. |
 | `text_color` | `"#263631"` | Body and detail text. |
@@ -412,7 +449,7 @@ font sizes are points. Numeric ranges include their endpoints.
 | `margin_bottom` | `0.95` | 0.6-1.5 in. |
 | `column_gap` | `0.65` | 0-2 in; shared gutter for side-by-side panels. |
 | `panel_padding` | `0.25` | 0-0.5 in; background overlay extends beyond content. |
-| `footer_margin_bottom` | `0.2` | 0.1-0.25 in. |
+| `footer_margin_bottom` | `0.2` | 0.1-1.5 in; moves the footer upward as it increases. Content area shrinks when needed to avoid overlap. |
 
 All color properties use six-digit hexadecimal strings. Quote them: an unquoted
 `#` starts a YAML comment. Per-panel overrides take precedence over shared theme
@@ -426,6 +463,22 @@ For PPTX, install the selected fonts on the recipient computer: fonts are not
 embedded in PowerPoint files. Use the app's **Download fonts (TTF)** action.
 Editor light/dark appearance and English/Czech localization are browser preferences,
 not presentation theme fields, and do not alter exported slide styling.
+
+The Theme tab also offers six coordinated presets: Blue Horizon, Sage Studio,
+Ink Network (dark), Rose Editorial, Sky Notes and Ribbon Report. Select one and
+press **Apply preset**. Shared fonts, font sizes and colors update; footer text and
+custom spacing are retained. **Replace existing slide backgrounds** copies the
+preset background to every existing slide (enabled by default). **Reset slide
+typography and panel overrides** removes local overrides so those slides fully
+inherit the new style (disabled by default). Image panes and slide content remain
+unchanged. New slides receive the chosen `default_background_image`, even after
+reload or import. Clearing this default affects future slides only.
+
+Background filenames are copied onto slides, not live-linked to this default:
+editing an individual slide background remains independent. The default reference
+is included in portable image bundles, and standalone editors include the six
+preset backgrounds so all presets work offline. Preset names are UI choices;
+YAML stores the actual theme values and slide filenames, not a preset identifier.
 
 ## Presentation Metadata
 

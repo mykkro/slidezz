@@ -26,7 +26,7 @@ def test_all_schemas_export_valid_widescreen_shapes():
     generate(validate({"slides": slides}), out)
     out.seek(0)
     prs = Presentation(out)
-    assert len(prs.slides) == 8
+    assert len(prs.slides) == len(get_all_templates())
     assert abs(prs.slide_width / prs.slide_height - 16 / 9) < .001
     for slide in prs.slides:
         for shape in slide.shapes:

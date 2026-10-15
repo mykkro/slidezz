@@ -91,16 +91,31 @@
         <div class="mb-3"><label class="form-label" for="metadata-language">Document language</label><input id="metadata-language" class="form-control" maxlength="255"></div>
       </div>
       <div id="theme-settings" role="tabpanel" aria-labelledby="theme-tab" hidden>
+        <div class="mb-3 theme-presets">
+          <label for="theme-preset" class="form-label">Theme preset</label>
+          <select id="theme-preset" class="form-select"></select>
+          <div id="preset-preview" class="preset-preview" aria-hidden="true"></div>
+          <div class="form-check mt-2"><input id="preset-backgrounds" class="form-check-input" type="checkbox" checked><label class="form-check-label" for="preset-backgrounds">Replace existing slide backgrounds</label></div>
+          <div class="form-check mt-2"><input id="preset-overrides" class="form-check-input" type="checkbox"><label class="form-check-label" for="preset-overrides">Reset slide typography and panel overrides</label></div>
+          <button id="apply-theme-preset" class="btn btn-primary btn-sm mt-2" type="button"><i data-lucide="palette"></i>Apply preset</button>
+        </div>
         <button id="download-theme" class="btn btn-light btn-sm mb-3" type="button"><i data-lucide="download"></i>Export theme JSON</button>
         <div class="mb-3"><label for="font-name" class="form-label">Font</label><select id="font-name" class="form-select"><optgroup label="Bundled free fonts"><option>Lato</option><option>Fira Sans</option><option>PT Sans</option><option>PT Serif</option><option>Barlow</option><option>IBM Plex Mono</option></optgroup><optgroup label="System fonts"><option>Aptos</option><option>Arial</option><option>Calibri</option><option>Georgia</option></optgroup></select><a href="/api/fonts/download" class="btn btn-light btn-sm mt-2"><i data-lucide="download"></i>Download fonts (TTF)</a></div>
         <div class="mb-3"><label for="primary-color" class="form-label">Accent color</label><input id="primary-color" class="form-control form-control-color" type="color"></div>
         <div class="mb-3"><label for="background-color" class="form-label">Slide background</label><input id="background-color" class="form-control form-control-color" type="color"></div>
+        <div class="mb-3"><label for="default-background-image" class="form-label">New slide background image</label><input id="default-background-image" class="form-control" maxlength="200"></div>
         <div class="mb-3"><label for="text-color" class="form-label">Text color</label><input id="text-color" class="form-control form-control-color" type="color"></div>
         <div class="mb-3"><label for="footer-color" class="form-label">Footer color</label><input id="footer-color" class="form-control form-control-color" type="color"></div>
         <div class="mb-3"><label for="panel-color" class="form-label">Panel color</label><input id="panel-color" class="form-control form-control-color" type="color"></div>
         <div class="mb-3"><label for="panel-transparency" class="form-label">Panel transparency</label><output id="theme-panel-value" class="range-value" for="panel-transparency"></output><input id="panel-transparency" class="form-range" type="range" min="0" max="100" step="1"></div>
         <div class="mb-3"><label for="footer-text" class="form-label">Footer</label><input id="footer-text" class="form-control" maxlength="200"></div>
         <div id="layout-settings"></div>
+        <div class="mb-3"><label for="font-style" class="form-label">Font style</label><select id="font-style" class="form-select"></select></div>
+        <div class="mb-3"><label for="text-alignment" class="form-label">Text alignment</label><select id="text-alignment" class="form-select"></select></div>
+        <div class="mb-3"><label for="text-vertical-alignment" class="form-label">Vertical alignment</label><select id="text-vertical-alignment" class="form-select"></select></div>
+        <div class="mb-3"><label for="footer-font-name" class="form-label">Footer font</label><select id="footer-font-name" class="form-select"></select></div>
+        <div class="mb-3"><label for="footer-font-style" class="form-label">Footer font style</label><select id="footer-font-style" class="form-select"></select></div>
+        <div class="mb-3"><label for="footer-alignment" class="form-label">Footer alignment</label><select id="footer-alignment" class="form-select"></select></div>
       </div>
     </div>
   </aside>

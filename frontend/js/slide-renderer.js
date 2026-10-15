@@ -45,6 +45,12 @@ function canvas(slide, number, layouts, theme, resources) {
     node.style.fontSize = box.size * 4 / 3 + "px";
     if (box.field === "title") node.style.color = theme.primary_color;
     if (box.kind !== "image") {
+      const style = slide[box.field + "_font_style"] ?? theme.font_style ?? "regular";
+      node.style.fontWeight = ["bold","bold_italic"].includes(style) ? "700" : "400";
+      node.style.fontStyle = ["italic","bold_italic"].includes(style) ? "italic" : "normal";
+      node.style.textAlign = slide[box.field + "_alignment"] ?? theme.text_alignment ?? "left";
+      node.style.display = "flex"; node.style.flexDirection = "column";
+      node.style.justifyContent = ({top:"flex-start",middle:"safe center",bottom:"safe flex-end"})[slide[box.field + "_vertical_alignment"] ?? theme.text_vertical_alignment ?? "top"];
       node.style.fontFamily = slide[box.field + "_font_name"] || theme.font_name;
       node.style.fontSize = (slide[box.field + "_font_size"] ?? box.size) * 4 / 3 + "px";
       if (slide[box.field + "_font_color"]) {
@@ -66,16 +72,29 @@ function canvas(slide, number, layouts, theme, resources) {
         image.onload = () => { node.style.background = "transparent"; node.style.padding = "0"; };
         node.append(image);
       } else node.textContent = "Image (not selected) not found";
-    } else if (box.kind === "markdown") {
-      tasks.push(resources.markdown(value).then(html => { node.innerHTML = html; }));
-    } else node.textContent = value;
+    } else {
+      const content = element("div", "slide-text-content");
+      node.append(content);
+      if (box.kind === "markdown") tasks.push(resources.markdown(value).then(html => { content.innerHTML = html; }));
+      else content.textContent = value;
+    }
     canvas.append(node);
   }
   const footer = element("div", "slide-footer", theme.footer_text || "");
   const page = element("div", "slide-footer slide-page", String(number).padStart(2, "0"));
+  for (const node of [footer,page]) {
+    node.style.fontFamily = theme.footer_font_name || theme.font_name;
+    node.style.fontSize = (theme.footer_font_size ?? 10) * 4 / 3 + "px";
+    node.style.fontWeight = ["bold","bold_italic"].includes(theme.footer_font_style) ? "700" : "400";
+    node.style.fontStyle = ["italic","bold_italic"].includes(theme.footer_font_style) ? "italic" : "normal";
+    node.style.textAlign = theme.footer_alignment || "left";
+    node.style.height = (template.footer.h ?? .3) * 96 + "px";
+  }
   footer.style.left = template.footer.x * 96 + "px";
   footer.style.maxWidth = template.footer.w * 96 + "px";
   page.style.left = template.footer.page_x * 96 + "px";
+  footer.style.width = template.footer.w * 96 + "px";
+  page.style.width = (template.footer.page_w ?? .65) * 96 + "px";
   footer.style.top = page.style.top = template.footer.y * 96 + "px";
   canvas.append(footer, page);
   return {canvas, ready: Promise.all(tasks)};

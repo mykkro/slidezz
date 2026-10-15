@@ -56,7 +56,11 @@ def test_guide_covers_all_templates_and_fields():
         assert f"`{name}`" in SOURCE
         for field in definition["fields"]:
             key = field["name"]
-            if "_font_" in key:
+            if key.endswith("_vertical_alignment"):
+                assert "`<field>_vertical_alignment`" in SOURCE
+            elif key.endswith("_alignment") and field.get("theme_key"):
+                assert "`<field>_alignment`" in SOURCE
+            elif "_font_" in key:
                 base, suffix = key.rsplit("_font_", 1)
                 assert f"`{base}`" in SOURCE
                 assert f"`<field>_font_{suffix}`" in SOURCE

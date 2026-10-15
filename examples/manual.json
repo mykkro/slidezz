@@ -19,6 +19,20 @@
       "background_image": "smoke-blue-blush.png"
     },
     {
+      "type": "image",
+      "title": "One image, one idea",
+      "image": "teal-light-wave.png",
+      "image_fit": "cover",
+      "image_alignment": "center",
+      "notes": "The image-with-title layout gives the visual the whole body area. Choose contain to show its full extent. Notes stay off the slide."
+    },
+    {
+      "type": "content",
+      "title": "Style the whole deck",
+      "markdown": "- Apply one of **six coordinated presets** in Theme.\n- Choose whether to replace backgrounds and reset overrides.\n- Set font style, text alignment and footer typography.\n- Open **Speaker notes** for your talking points.",
+      "notes": "Footer bottom margin moves the footer and reduces the body area when necessary. Prezentovat opens presentation mode in Czech."
+    },
+    {
       "type": "image_left_content",
       "title": "Meet your workspace",
       "image": "manual-editor.png",
@@ -31,7 +45,7 @@
     },
     {
       "type": "section",
-      "title": "Eight layouts",
+      "title": "Nine layouts",
       "subtitle": "Choose a structure that fits your message",
       "background_image": "blue-light-mesh.png"
     },
@@ -44,7 +58,7 @@
     {
       "type": "content",
       "title": "Choose and organize slides",
-      "markdown": "- The layout picker shows **panel diagrams** for all eight layouts.\n- Press **+** to add the chosen layout.\n- Select a thumbnail to edit a slide.\n- Use the arrows to move it up or down.\n- Duplicate a slide to reuse its structure.\n- Delete slides you no longer need."
+      "markdown": "- The layout picker shows **panel diagrams** for all nine layouts.\n- Press **+** to add the chosen layout.\n- Select a thumbnail to edit a slide.\n- Use the arrows to move it up or down.\n- Duplicate a slide to reuse its structure.\n- Delete slides you no longer need."
     },
     {
       "type": "content",

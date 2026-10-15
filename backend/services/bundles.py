@@ -22,9 +22,12 @@ IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 
 def referenced_images(data):
     definitions = get_template_definitions()
-    return sorted({slide.get(field["name"]) for slide in data["slides"]
+    names = {slide.get(field["name"]) for slide in data["slides"]
                    for field in definitions[slide["type"]]["fields"]
-                   if field["type"] == "image" and slide.get(field["name"])})
+                   if field["type"] == "image" and slide.get(field["name"])}
+    if data.get("theme", {}).get("default_background_image"):
+        names.add(data["theme"]["default_background_image"])
+    return sorted(names)
 
 
 def image_files(data, root):
@@ -42,6 +45,11 @@ def data_url(content, mime):
 
 
 def build_static_html(data, images):
+    presets = json.loads((FRONTEND_DIR / "assets" / "themes.json").read_text(encoding="utf-8"))
+    images = dict(images)
+    for preset in presets:
+        name = preset["theme"]["default_background_image"]
+        images.setdefault(name, (PROJECT_ROOT / "images" / name).read_bytes())
     soup = BeautifulSoup((FRONTEND_DIR / "index.html").read_text(encoding="utf-8"), "html.parser")
     for asset in soup.select('img[src^="/static/"], link[rel="icon"][href^="/static/"]'):
         attribute = "src" if asset.name == "img" else "href"
@@ -75,7 +83,7 @@ def build_static_html(data, images):
     for name, definition in definitions.items():
         definition["icon_url"] = data_url(layout_icon(get_all_templates()[name]).encode(), "image/svg+xml")
     fonts, licenses = bundled_fonts()
-    config = dict(presentation=data, defaults=DEFAULT_THEME, templates=definitions,
+    config = dict(presentation=data, defaults=DEFAULT_THEME, templates=definitions, presets=presets,
                   settings=SETTINGS, images={name: data_url(raw, mimetypes.guess_type(name)[0] or "image/png")
                                             for name, raw in images.items()},
                   fonts=fonts, licenses=licenses, shell=shell, viewer_shell=build_viewer_shell(),
@@ -169,6 +177,8 @@ def build_viewer_html(data, images):
     from backend.services.slide_renderer import markdown_html
     fonts, licenses = bundled_fonts()
     names = {data["theme"]["font_name"].strip().lower()}
+    if data["theme"].get("footer_font_name"):
+        names.add(data["theme"]["footer_font_name"].strip().lower())
     definitions = get_template_definitions()
     for slide in data["slides"]:
         names.update(slide[field["name"]].strip().lower() for field in definitions[slide["type"]]["fields"]

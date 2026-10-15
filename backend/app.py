@@ -51,8 +51,15 @@ def validate(data):
         value = theme[setting["name"]]
         if isinstance(value, bool) or not isinstance(value, (int, float)) or not setting["min"] <= value <= setting["max"]:
             raise ValueError(f"Theme {setting['name']} must be between {setting['min']} and {setting['max']}.")
-    for key in ("font_name", "footer_text"):
+    for key in ("font_name", "footer_font_name", "footer_text", "default_background_image"):
         if not isinstance(theme[key], str) or len(theme[key]) > 200:
+            raise ValueError(f"Invalid {key}.")
+    for key, options in {"font_style": ("regular", "bold", "italic", "bold_italic"),
+                         "footer_font_style": ("regular", "bold", "italic", "bold_italic"),
+                         "text_alignment": ("left", "center", "right", "justify"),
+                         "footer_alignment": ("left", "center", "right", "justify"),
+                         "text_vertical_alignment": ("top", "middle", "bottom")}.items():
+        if theme[key] not in options:
             raise ValueError(f"Invalid {key}.")
     definitions = get_template_definitions()
     slides = []
@@ -109,6 +116,10 @@ def create_app(test_config=None):
     @app.get("/")
     def index():
         return send_from_directory(FRONTEND_DIR, "index.html")
+
+    @app.get("/api/theme/presets")
+    def theme_presets():
+        return jsonify(json.loads((FRONTEND_DIR / "assets" / "themes.json").read_text(encoding="utf-8")))
 
     @app.get("/api/templates")
     def templates():
@@ -218,6 +229,9 @@ def create_app(test_config=None):
             rename[name] = target
             pending[target] = raw
         definitions = get_template_definitions()
+        background = data["theme"]["default_background_image"]
+        if background in rename:
+            data["theme"]["default_background_image"] = rename[background]
         for slide in data["slides"]:
             for field in definitions[slide["type"]]["fields"]:
                 if field["type"] == "image" and slide.get(field["name"]) in rename:

@@ -75,10 +75,10 @@ accounts or collaboration. Bind to localhost when running it on your computer.
 
 ## Demo And Manual
 
-Build the 29-slide manual with the command below and open `dist/slidezz-manual.html`
+Build the 31-slide manual with the command below and open `dist/slidezz-manual.html`
 without a backend, or import
 [its JSON source](examples/manual.json) into the Python editor. The manual covers
-all eight layouts, Markdown, image fit/alignment, themes, geometry, fonts,
+all nine layouts, Markdown, image fit/alignment, presets, geometry, typography,
 JSON/YAML/ZIP imports, offline bundles, PPTX export and presentation mode.
 It includes actual editor screenshots and an intentional missing-image example.
 
@@ -102,7 +102,7 @@ Old deck references are mapped to `blue-light-mesh.png` and `smoke-blue-blush.pn
 ## Editing
 
 For text-first authoring, see the [YAML Authoring Guide](AUTHORING.md): a complete
-importable deck covering all eight layouts, every editable field, theme settings,
+importable deck covering all nine layouts, every editable field, theme settings,
 metadata, image controls and typography overrides.
 
 Click the presentation name in the top bar, or open the inspector's **Presentation**
@@ -118,11 +118,33 @@ in standalone HTML too. They affect only the editor, not slide content or export
 presentation themes.
 
 The theme inspector is organized into collapsible Typography, Colors, Background,
-Spacing and Footer groups. The slide inspector groups related content and image
+Spacing and Footer groups. Its preset picker offers six coordinated font/color/
+background combinations, including a dark preset. Select one and **Apply preset**
+to update the shared style. Optionally replace all existing slide backgrounds and
+reset local typography/panel overrides; content and image panes are preserved.
+The selected background is also used for newly added slides, including after
+reload. Presets and their backgrounds are available in standalone editors too.
+
+The slide inspector groups related content and image
 controls, with a collapsible Typography subsection for each text panel.
 Set its font family, size (8-96 pt) or text color, or leave **Use theme** checked
 to inherit the presentation style. These per-panel overrides are included in
 JSON/YAML/ZIP/HTML and editable PPTX exports; Markdown formatting still applies.
+
+Typography controls use compact groups with different expanded/collapsed shading.
+Text panels also support regular, bold, italic or bold-italic styles, left/center/
+right/justified text and top/middle/bottom alignment inside their boxes. These
+settings can inherit the theme or be overridden per panel. Markdown emphasis is
+preserved. Image panes keep their separate cover/contain and alignment controls.
+
+The Theme tab's **Footer** group controls font family, size (6-32 pt), style, color
+and alignment for footer text and page numbers. Increasing **Footer bottom margin**
+(0.1-1.5 inches) raises the footer; the layout reserves space to avoid overlapping
+slide content. A separate footer font can inherit the main theme font.
+
+Every slide has a collapsed **Speaker notes** group. Notes stay off the slide and
+are exported as PowerPoint speaker notes. JSON/YAML/ZIP/HTML preserve them as data,
+so remove confidential notes before sharing those formats.
 
 Six free font families are bundled locally: Lato, Fira Sans, PT Sans, PT Serif,
 Barlow and IBM Plex Mono. Each includes regular, bold, italic and bold italic.
@@ -183,7 +205,7 @@ YAML imports use PyYAML's safe loader and the same validation as JSON.
 Use JSON-compatible values and string mapping keys; custom tags, dates and recursive
 aliases are rejected. Colors beginning with `#` must be quoted.
 
-Templates: title, content, image + content, content + image, two images,
+Templates: title, content, image with title, image + content, content + image, two images,
 two columns, quote and section divider. Slides use a 16:9 canvas.
 The template picker and inspector show SVG panel diagrams generated from each
 template's layout geometry. New templates automatically receive matching icons.
@@ -244,7 +266,8 @@ Images are referenced by their gallery filename, not embedded in JSON.
 Share the corresponding files from `images/` alongside a deck's JSON.
 Missing optional fields become empty strings. Invalid templates, field types,
 colors or presentations over 200 slides are rejected with an explanatory error.
-`examples/presentation.json` contains all eight templates.
+`examples/presentation.json` contains the original eight layouts; the authoring
+guide and demo manual include all nine, including the image-with-title layout.
 
 ## Add A Template
 
@@ -266,6 +289,7 @@ register(LayoutTemplate(
 
 `field(name, type, label, default)` declares the editable schema. Supported types
 include `text`, `markdown`, `image`, `font`, `color`, `range` and `choice`.
+The shared `notes` field is a multiline plain-text control and is added automatically.
 The browser creates one form control per field,
 including independent Markdown editors for templates with multiple rich text fields.
 Image fields used in pane layouts automatically gain fit and alignment choice controls.
@@ -299,6 +323,11 @@ To verify the actual PowerPoint rendering with LibreOffice installed:
 ```sh
 python tests/render_pptx.py
 ```
+
+`python tests/verify_theme_controls.py` checks all six presets online/offline,
+new-slide defaults, typography, footer movement, notes and mobile layouts, then
+renders all nine layouts for each preset through LibreOffice. It requires Edge
+and LibreOffice and writes a native-slide contact sheet to `test-results/`.
 
 This converts the exported deck to PDF and writes a contact sheet plus individual
 slide images into `test-results/`. The README screenshot is generated by the

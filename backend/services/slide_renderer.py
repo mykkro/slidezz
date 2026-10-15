@@ -9,16 +9,22 @@ from PIL import Image
 from pptx.dml.color import RGBColor
 from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.oxml.xmlchemy import OxmlElement
 from backend.paths import PROJECT_ROOT
 from backend.templates.registry import IMAGE_ALIGNMENTS
 from backend.services.layout_geometry import DEFAULTS as LAYOUT_DEFAULTS, resolve_layout
 
-DEFAULT_THEME = dict(font_name="Aptos", primary_color="#16745C", background_color="#FFFFFF",
+DEFAULT_THEME = dict(font_name="Aptos", default_background_image="", primary_color="#16745C", background_color="#FFFFFF",
                      title_size=30, subtitle_size=18, footer_text="", text_color="#263631",
                      footer_color="#263631", background_panel_color="#FFFFFF",
                      background_panel_transparency=50)
 DEFAULT_THEME.update(LAYOUT_DEFAULTS)
+DEFAULT_THEME.update(font_style="regular", text_alignment="left", text_vertical_alignment="top",
+                     footer_font_name="", footer_font_style="regular", footer_alignment="left")
+
+ALIGNMENTS = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER, "right": PP_ALIGN.RIGHT, "justify": PP_ALIGN.JUSTIFY}
+ANCHORS = {"top": MSO_ANCHOR.TOP, "middle": MSO_ANCHOR.MIDDLE, "bottom": MSO_ANCHOR.BOTTOM}
 
 
 def image_path(name, images_dir=None):
@@ -52,6 +58,8 @@ def render_pptx(prs, template, data, theme, number, images_dir=None):
     def resolve_image(name):
         return image_path(name, images_dir)
     slide = prs.slides.add_slide(prs.slide_layouts[6])
+    if data.get("notes"):
+        slide.notes_slide.notes_text_frame.text = data["notes"]
     slide.background.fill.solid()
     slide.background.fill.fore_color.rgb = RGBColor.from_string(theme["background_color"][1:])
     background = data.get("background_image", "")
@@ -91,6 +99,8 @@ def render_pptx(prs, template, data, theme, number, images_dir=None):
             value = f"Image {value or '(not selected)'} not found"
         frame = slide.shapes.add_textbox(x, y, w, h).text_frame
         frame.word_wrap = True
+        frame.vertical_anchor = ANCHORS[data.get(item["field"] + "_vertical_alignment", theme["text_vertical_alignment"])]
+        style = data.get(item["field"] + "_font_style", theme["font_style"])
         frame.margin_left = frame.margin_right = frame.margin_top = frame.margin_bottom = 0
         markup = markdown_html(value) if item["kind"] == "markdown" else f"<p>{html.escape(value)}</p>"
         soup = BeautifulSoup(markup, "html.parser")
@@ -100,6 +110,9 @@ def render_pptx(prs, template, data, theme, number, images_dir=None):
         for i, block in enumerate(blocks):
             paragraph = frame.paragraphs[0] if i == 0 else frame.add_paragraph()
             paragraph.space_after = Pt(10)
+            paragraph.font.bold = style in ("bold", "bold_italic")
+            paragraph.font.italic = style in ("italic", "bold_italic")
+            paragraph.alignment = ALIGNMENTS[data.get(item["field"] + "_alignment", theme["text_alignment"])]
             heading = block.name.startswith("h")
             paragraph.font.name = data.get(item["field"] + "_font_name", theme["font_name"])
             paragraph.font.size = Pt(data.get(item["field"] + "_font_size", item["size"]) + (5 if heading else 0))
@@ -121,8 +134,8 @@ def render_pptx(prs, template, data, theme, number, images_dir=None):
                     run = paragraph.add_run()
                     run.text = str(descendant)
                     parents = list(descendant.parents)
-                    run.font.bold = heading or any(p.name in ("strong", "b") for p in parents)
-                    run.font.italic = any(p.name in ("em", "i") for p in parents)
+                    run.font.bold = style in ("bold", "bold_italic") or heading or any(p.name in ("strong", "b") for p in parents)
+                    run.font.italic = style in ("italic", "bold_italic") or any(p.name in ("em", "i") for p in parents)
                     if any(p.name in ("code", "pre") for p in parents):
                         run.font.name = "Consolas"
                     link = next((p for p in parents if p.name == "a"), None)
@@ -132,12 +145,15 @@ def render_pptx(prs, template, data, theme, number, images_dir=None):
                     paragraph.add_line_break()
     footer = geometry["footer"]
     for text, x, width in [(theme.get("footer_text", ""), footer["x"], footer["w"]),
-                           (f"{number:02d}", footer["page_x"], .65)]:
-        frame = slide.shapes.add_textbox(Inches(x), Inches(footer["y"]), Inches(width), Inches(.3)).text_frame
+                           (f"{number:02d}", footer["page_x"], footer["page_w"])]:
+        frame = slide.shapes.add_textbox(Inches(x), Inches(footer["y"]), Inches(width), Inches(footer["h"])).text_frame
         frame.margin_left = frame.margin_right = frame.margin_top = frame.margin_bottom = 0
         frame.text = text
-        frame.paragraphs[0].font.name = theme["font_name"]
-        frame.paragraphs[0].font.size = Pt(10)
+        frame.paragraphs[0].font.name = theme["footer_font_name"] or theme["font_name"]
+        frame.paragraphs[0].font.size = Pt(theme["footer_font_size"])
+        frame.paragraphs[0].font.bold = theme["footer_font_style"] in ("bold", "bold_italic")
+        frame.paragraphs[0].font.italic = theme["footer_font_style"] in ("italic", "bold_italic")
+        frame.paragraphs[0].alignment = ALIGNMENTS[theme["footer_alignment"]]
         frame.paragraphs[0].font.color.rgb = RGBColor.from_string(theme["footer_color"][1:])
     if background and not resolve_image(background):
         frame = slide.shapes.add_textbox(Inches(footer["x"]), Inches(geometry["missing_y"]), Inches(footer["w"]), Inches(.3)).text_frame

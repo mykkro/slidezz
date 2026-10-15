@@ -32,12 +32,15 @@
     for (const key of ["primary_color", "background_color", "background_panel_color", "text_color", "footer_color"]) {
       if (typeof theme[key] !== "string" || !/^#[0-9a-f]{6}$/i.test(theme[key])) throw new Error("Invalid " + key + ".");
     }
-    for (const key of ["font_name", "footer_text"]) {
+    for (const key of ["font_name", "footer_font_name", "footer_text", "default_background_image"]) {
       if (typeof theme[key] !== "string" || theme[key].length > 200) throw new Error("Invalid " + key + ".");
     }
     for (const setting of [...config.settings, {name:"background_panel_transparency",min:0,max:100}]) {
       const value = theme[setting.name];
       if (typeof value !== "number" || !Number.isFinite(value) || value < setting.min || value > setting.max) throw new Error("Invalid theme " + setting.name + ".");
+    }
+    for (const [key, options] of Object.entries({font_style:["regular","bold","italic","bold_italic"],footer_font_style:["regular","bold","italic","bold_italic"],text_alignment:["left","center","right","justify"],footer_alignment:["left","center","right","justify"],text_vertical_alignment:["top","middle","bottom"]})) {
+      if (!options.includes(theme[key])) throw new Error("Invalid " + key + ".");
     }
     const slides = data.slides.map((slide, index) => {
       if (!slide || typeof slide.type !== "string" || !Object.hasOwn(config.templates, slide.type)) throw new Error("Slide " + (index+1) + ": unknown or missing template type.");
@@ -71,7 +74,9 @@
   }
   function layouts(theme) {
     const left = theme.margin_left, top = theme.margin_top;
-    const width = 13.333333-left-theme.margin_right, height = 7.5-top-theme.margin_bottom;
+    const footerHeight = Math.max(.3, theme.footer_font_size * 1.2 / 72);
+    const footerY = 7.5-theme.footer_margin_bottom-footerHeight;
+    const width = 13.333333-left-theme.margin_right, height = Math.min(7.5-theme.margin_bottom,footerY-.1)-top;
     const result = {};
     for (const [name, template] of Object.entries(config.templates)) {
       const panels = template.layout.map(original => {
@@ -92,16 +97,16 @@
       }
       for (const panel of panels) for (const key of ["x","y","w","h","size"]) panel[key] = Math.round(panel[key]*1e6)/1e6;
       const padding = theme.panel_padding, sx = Math.max(0,left-padding), sy = Math.max(0,top-padding);
-      const footerY = 7.5-theme.footer_margin_bottom-.3;
+      const pageWidth = Math.max(.65,theme.footer_font_size*2.2/72);
       result[name] = {...template, layout:panels,
         surface:{x:sx,y:sy,w:Math.min(13.333333,left+width+padding)-sx,h:Math.min(footerY-.1,top+height+padding)-sy},
-        footer:{x:left,y:footerY,w:Math.max(1,width-1),page_x:left+width-.65},
+        footer:{x:left,y:footerY,h:footerHeight,w:Math.max(1,width-pageWidth-.35),page_x:left+width-pageWidth,page_w:pageWidth},
         missing_y:Math.min(top+height+.1,footerY-.35)};
     }
     return result;
   }
   function references(data) {
-    return [...new Set(data.slides.flatMap(slide => config.templates[slide.type].fields.filter(field => field.type === "image").map(field => slide[field.name]).filter(Boolean)))].sort();
+    return [...new Set([data.theme?.default_background_image, ...data.slides.flatMap(slide => config.templates[slide.type].fields.filter(field => field.type === "image").map(field => slide[field.name]))].filter(Boolean))].sort();
   }
   function htmlBundle(data, selectedImages) {
     const next = {...config, presentation:validate(data), images:selectedImages, id:crypto.randomUUID()};
@@ -119,6 +124,7 @@ function renderedMarkdown(text) {
   function viewerBundle(data) {
     data = validate(data);
     const names = new Set([data.theme.font_name.trim().toLowerCase()]);
+    if (data.theme.footer_font_name) names.add(data.theme.footer_font_name.trim().toLowerCase());
     const markdown = {}, selectedImages = {};
     for (const slide of data.slides) {
       for (const field of config.templates[slide.type].fields) {
@@ -178,6 +184,7 @@ function renderedMarkdown(text) {
     for (const slide of data.slides) for (const field of config.templates[slide.type].fields) {
       if (field.type === "image" && Object.hasOwn(rename,slide[field.name])) slide[field.name] = rename[slide[field.name]];
     }
+    if (Object.hasOwn(rename,data.theme.default_background_image)) data.theme.default_background_image = rename[data.theme.default_background_image];
     images = {...images,...additions};
     return data;
   }
@@ -221,6 +228,7 @@ function renderedMarkdown(text) {
       switch (String(path)) {
         case "/api/templates": return response(config.templates);
         case "/api/theme/layout": return response(config.settings);
+        case "/api/theme/presets": return response(config.presets);
         case "/api/presentation": return response(validate(deck));
         case "/api/images":
           if (options.method === "POST") throw new Error("Image upload is available in the Python app. Import a ZIP to add images offline.");

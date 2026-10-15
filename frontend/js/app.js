@@ -4,6 +4,7 @@ const $ = id => document.getElementById(id);
 let presentation, templates, layoutSettings, imageList = [], selected = 0, editors = [], galleryField = null;
 let resolvedLayoutKey = null, resolvedLayouts = null;
 let importArchive = null;
+let themePresets = [];
 const presentationOnly = Boolean(window.SlidezzStatic?.presentationOnly);
 if (presentationOnly) document.body.classList.add("presentation-only");
 let saveTimer, renderTimer, renderVersion = 0, changeVersion = 0, savedVersion = 0;
@@ -66,6 +67,7 @@ function newSlide(type) {
   for (const field of templates[type].fields) {
     if (!field.theme_key) slide[field.name] = field.default ?? "";
   }
+  if (presentation.theme.default_background_image) slide.background_image = presentation.theme.default_background_image;
   return slide;
 }
 function changed() {
@@ -241,6 +243,8 @@ function markdownField(wrapper, input, slide, field) {
 const inspectorGroups = new Map();
 function settingsGroup(parent, label, key, open = true) {
   const details = element("details", "settings-group");
+  if (label === "Typography") details.classList.add("typography-group");
+  if (label === "Footer") details.classList.add("footer-group");
   details.open = inspectorGroups.get(key) ?? open;
   details.append(element("summary", "", label));
   details.addEventListener("toggle", () => {
@@ -258,14 +262,18 @@ function fieldDefault(field) {
 function groupThemeSettings() {
   const root = $("theme-settings");
   for (const [label, ids] of [
-    ["Typography", ["font-name", "theme-title_size", "theme-subtitle_size", "theme-body_size"]],
+    ["Typography", ["font-name", "font-style", "text-alignment", "text-vertical-alignment", "theme-title_size", "theme-subtitle_size", "theme-body_size"]],
     ["Colors", ["primary-color", "text-color"]],
-    ["Background", ["background-color", "panel-color", "panel-transparency"]],
+    ["Background", ["background-color", "default-background-image", "panel-color", "panel-transparency"]],
     ["Spacing", ["theme-margin_left", "theme-margin_right", "theme-margin_top", "theme-margin_bottom", "theme-column_gap", "theme-panel_padding"]],
-    ["Footer", ["footer-text", "footer-color", "theme-footer_margin_bottom"]],
+    ["Footer", ["footer-text", "footer-font-name", "footer-font-style", "theme-footer_font_size", "footer-alignment", "footer-color", "theme-footer_margin_bottom"]],
   ]) {
     const group = settingsGroup(root, label, "theme:" + label);
-    for (const id of ids) group.append($(id).closest(".mb-3"));
+    for (const id of ids) {
+      const wrapper = $(id).closest(".mb-3");
+      if (["font-name","footer-font-name","footer-text"].includes(id)) wrapper.classList.add("font-family-field");
+      group.append(wrapper);
+    }
   }
   $("layout-settings").remove();
 }
@@ -281,13 +289,14 @@ function renderForm() {
   const groups = new Map(), typography = new Map();
   for (const field of template.fields) {
     const groupName = field.group || "Content";
-    if (!groups.has(groupName)) groups.set(groupName, settingsGroup($("properties"), groupName, "slide:" + groupName));
+    if (!groups.has(groupName)) groups.set(groupName, settingsGroup($("properties"), groupName, "slide:" + groupName, groupName !== "Speaker notes"));
     let parent = groups.get(groupName);
     if (field.subgroup) {
       if (!typography.has(groupName)) typography.set(groupName, settingsGroup(parent, field.subgroup, "type:" + groupName, false));
       parent = typography.get(groupName);
     }
     const wrapper = element("div", "field-wrapper");
+    if (field.name.endsWith("_font_name")) wrapper.classList.add("font-family-field");
     const label = element("label", "form-label", field.label);
     const id = "field-" + field.name;
     label.htmlFor = id;
@@ -344,9 +353,9 @@ function renderForm() {
         button.type = "button";
         button.title = field.label + ": " + option.label;
         button.setAttribute("aria-label", button.title);
-        button.setAttribute("aria-pressed", String((slide[field.name] || field.default) === option.value));
+        button.setAttribute("aria-pressed", String((slide[field.name] ?? fieldDefault(field)) === option.value));
         button.append(icon(option.icon));
-        if (field.control !== "alignment") button.append(document.createTextNode(option.label));
+        if (!["alignment", "icons"].includes(field.control)) button.append(document.createTextNode(option.label));
         button.onclick = () => {
           slide[field.name] = option.value;
           for (const sibling of controls.children) sibling.setAttribute("aria-pressed", "false");
@@ -356,6 +365,20 @@ function renderForm() {
         controls.append(button);
       }
       wrapper.append(controls);
+      if (field.theme_key) {
+        const inherited = element("label", "theme-inheritance");
+        const checkbox = element("input", "form-check-input");
+        checkbox.type = "checkbox"; checkbox.id = id + "-use-theme";
+        checkbox.checked = !Object.hasOwn(slide, field.name);
+        checkbox.setAttribute("aria-label", field.label + ": Use theme");
+        for (const button of controls.children) button.disabled = checkbox.checked;
+        inherited.append(checkbox, document.createTextNode("Use theme"));
+        checkbox.onchange = () => {
+          if (checkbox.checked) delete slide[field.name]; else slide[field.name] = fieldDefault(field);
+          renderForm(); changed();
+        };
+        wrapper.append(inherited);
+      }
     } else if (field.type === "image") {
       const row = element("div", "image-field");
       row.append(element("span", "image-name", slide[field.name] || "No image"));
@@ -369,9 +392,10 @@ function renderForm() {
       };
       row.append(choose); wrapper.append(row);
     } else {
-      const input = element(field.type === "markdown" ? "textarea" : "input", "form-control");
+      const input = element(["markdown", "notes"].includes(field.type) ? "textarea" : "input", "form-control");
       input.id = id; input.value = slide[field.name] || ""; input.maxLength = 20000;
-      if (field.type !== "markdown") input.type = "text";
+      if (field.type === "notes") input.rows = 5;
+      else if (field.type !== "markdown") input.type = "text";
       wrapper.append(input);
       parent.append(wrapper);
       if (field.type === "markdown") markdownField(wrapper, input, slide, field);
@@ -592,6 +616,11 @@ function bindImport() {
   };
 }
 function bind() {
+  // Presets change shared style; optional resets remove explicit slide overrides.
+  for (const preset of themePresets) $("theme-preset").add(new Option(preset.name, preset.id));
+  $("theme-preset").onchange = previewPreset;
+  $("apply-theme-preset").onclick = applyThemePreset;
+  previewPreset();
   bindPresentation();
   bindImport();
   for (const setting of layoutSettings) {
@@ -627,8 +656,10 @@ function bind() {
   $("previous-slide").onclick = () => selectSlide(selected - 1);
   $("next-slide").onclick = () => selectSlide(selected + 1);
   for (const [id, key] of [["font-name", "font_name"], ["primary-color", "primary_color"],
-                           ["background-color", "background_color"], ["footer-text", "footer_text"],
+                           ["background-color", "background_color"], ["footer-text", "footer_text"], ["default-background-image", "default_background_image"],
                            ["text-color", "text_color"], ["footer-color", "footer_color"],
+                           ["font-style", "font_style"], ["text-alignment", "text_alignment"], ["text-vertical-alignment", "text_vertical_alignment"],
+                           ["footer-font-name", "footer_font_name"], ["footer-font-style", "footer_font_style"], ["footer-alignment", "footer_alignment"],
                            ["panel-color", "background_panel_color"], ["panel-transparency", "background_panel_transparency"]]) {
     $(id).oninput = () => {
       presentation.theme[key] = id === "panel-transparency" ? Number($(id).value) : $(id).value;
@@ -712,6 +743,33 @@ function bind() {
     }
   });
 }
+function previewPreset() {
+  const preset = themePresets.find(item => item.id === $("theme-preset").value);
+  if (!preset) return;
+  const theme = preset.theme, preview = $("preset-preview");
+  preview.replaceChildren(); preview.style.backgroundColor = theme.background_color;
+  const image = element("img"); image.src = imageURL(theme.default_background_image); image.alt = "";
+  image.onerror = () => image.remove();
+  const surface = element("div", "preset-surface");
+  surface.style.backgroundColor = theme.background_panel_color;
+  surface.style.opacity = 1 - theme.background_panel_transparency / 100;
+  const name = element("div", "preset-name", preset.name);
+  name.style.color = theme.primary_color; name.style.fontFamily = theme.font_name;
+  preview.append(image, surface, name);
+}
+function applyThemePreset() {
+  const preset = themePresets.find(item => item.id === $("theme-preset").value);
+  if (!preset) return;
+  Object.assign(presentation.theme, {font_style:"regular",text_alignment:"left",text_vertical_alignment:"top",
+    footer_font_name:"",footer_font_style:"regular",footer_font_size:10,footer_alignment:"left"}, preset.theme);
+  for (const slide of presentation.slides) {
+    if ($("preset-backgrounds").checked) slide.background_image = preset.theme.default_background_image;
+    if ($("preset-overrides").checked) {
+      for (const field of templates[slide.type].fields) if (field.theme_key) delete slide[field.name];
+    }
+  }
+  syncTheme(); renderForm(); changed();
+}
 const metadataKeys = ["title","author","subject","description","keywords","category","language"];
 function syncDocumentTitle() {
   const title = presentation.metadata?.title || "";
@@ -724,21 +782,25 @@ function syncMetadata() {
   syncDocumentTitle();
 }
 function syncTheme() {
+  const footerFont = $("footer-font-name"), family = presentation.theme.footer_font_name || "";
+  if (![...footerFont.options].some(option => option.value === family)) footerFont.add(new Option(family, family));
   for (const setting of layoutSettings) $("theme-" + setting.name).value = presentation.theme[setting.name];
   const font = $("font-name");
   if (![...font.options].some(option => option.value === presentation.theme.font_name)) {
     font.add(new Option(presentation.theme.font_name, presentation.theme.font_name));
   }
   for (const [id, key] of [["font-name", "font_name"], ["primary-color", "primary_color"],
-                           ["background-color", "background_color"], ["footer-text", "footer_text"],
+                           ["background-color", "background_color"], ["footer-text", "footer_text"], ["default-background-image", "default_background_image"],
                            ["text-color", "text_color"], ["footer-color", "footer_color"],
+                           ["font-style", "font_style"], ["text-alignment", "text_alignment"], ["text-vertical-alignment", "text_vertical_alignment"],
+                           ["footer-font-name", "footer_font_name"], ["footer-font-style", "footer_font_style"], ["footer-alignment", "footer_alignment"],
                            ["panel-color", "background_panel_color"], ["panel-transparency", "background_panel_transparency"]]) $(id).value = presentation.theme[key];
   $("theme-panel-value").textContent = presentation.theme.background_panel_transparency + "%";
 }
 async function initialize() {
   try {
-    [templates, imageList, presentation, layoutSettings] = await Promise.all([
-      json("/api/templates"), json("/api/images"), json("/api/presentation"), json("/api/theme/layout")
+    [templates, imageList, presentation, layoutSettings, themePresets] = await Promise.all([
+      json("/api/templates"), json("/api/images"), json("/api/presentation"), json("/api/theme/layout"), json("/api/theme/presets")
     ]);
     syncMetadata();
     if (presentationOnly) {
@@ -768,6 +830,12 @@ async function initialize() {
     }
     selectTemplate($("template-select").value);
     $("template-select").onchange = () => selectTemplate($("template-select").value);
+    for (const [id, source] of [["font-style","title_font_style"],["footer-font-style","title_font_style"],
+                               ["text-alignment","title_alignment"],["footer-alignment","title_alignment"],
+                               ["text-vertical-alignment","title_vertical_alignment"]]) {
+      for (const option of templates.content.fields.find(field => field.name === source).options) $(id).add(new Option(option.label, option.value));
+    }
+    $("footer-font-name").innerHTML = '<option value="">Use theme font</option>' + $("font-name").innerHTML;
     groupThemeSettings();
     syncTheme(); bind(); selectSlide(0); icons();
   } catch (error) { showError(error); }

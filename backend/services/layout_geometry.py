@@ -6,7 +6,8 @@ SETTINGS = [
     dict(name="margin_bottom", label="Bottom margin (in)", default=.95, min=.6, max=1.5, step="any"),
     dict(name="column_gap", label="Column gap (in)", default=.65, min=0, max=2, step="any"),
     dict(name="panel_padding", label="Panel padding (in)", default=.25, min=0, max=.5, step="any"),
-    dict(name="footer_margin_bottom", label="Footer bottom margin (in)", default=.2, min=.1, max=.25, step="any"),
+    dict(name="footer_margin_bottom", label="Footer bottom margin (in)", default=.2, min=.1, max=1.5, step="any"),
+    dict(name="footer_font_size", label="Footer font size (pt)", default=10, min=6, max=32, step="any"),
     dict(name="title_size", label="Title size (pt)", default=30, min=18, max=48, step=1),
     dict(name="subtitle_size", label="Subtitle size (pt)", default=18, min=12, max=32, step=1),
     dict(name="body_size", label="Body size (pt)", default=20, min=12, max=32, step=1),
@@ -18,7 +19,9 @@ def resolve_layout(template, theme):
     theme = {**DEFAULTS, **theme}
     left, top = theme["margin_left"], theme["margin_top"]
     width = 13.333333 - left - theme["margin_right"]
-    height = 7.5 - top - theme["margin_bottom"]
+    footer_height = max(.3, theme["footer_font_size"] * 1.2 / 72)
+    footer_y = 7.5 - theme["footer_margin_bottom"] - footer_height
+    height = min(7.5 - theme["margin_bottom"], footer_y - .1) - top
     panels = []
     for original in template.layout:
         panel = dict(original)
@@ -43,9 +46,9 @@ def resolve_layout(template, theme):
         for key in ("x", "y", "w", "h", "size"):
             panel[key] = round(panel[key], 6)
     sx, sy = max(0, left-padding), max(0, top-padding)
-    footer_y = 7.5-theme["footer_margin_bottom"]-.3
+    page_width = max(.65, theme["footer_font_size"] * 2.2 / 72)
     return dict(layout=panels,
                 surface=dict(x=sx, y=sy, w=min(13.333333, left+width+padding)-sx,
                              h=min(footer_y-.1, top+height+padding)-sy),
-                footer=dict(x=left, y=footer_y, w=max(1, width-1), page_x=left+width-.65),
+                footer=dict(x=left, y=footer_y, h=footer_height, w=max(1, width-page_width-.35), page_x=left+width-page_width, page_w=page_width),
                 missing_y=min(top+height+.1, footer_y-.35))
