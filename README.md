@@ -30,7 +30,7 @@ The Import dialog accepts these ZIPs in both app versions. Image filename collis
 are resolved without replacing existing gallery files. ZIP imports are limited to
 32 MB compressed / 64 MB uncompressed and 256 files.
 
-To rebuild the standalone editor from the example deck:
+To rebuild the standalone editor with the default demo/manual:
 
 ```sh
 python tools/build_static.py
@@ -74,6 +74,13 @@ Open http://127.0.0.1:5000. This is a local, single-presentation editor, without
 accounts or collaboration. Bind to localhost when running it on your computer.
 
 ## Demo And Manual
+
+On first launch, the editor opens the **31-slide Slidezz Demo and Manual** as its
+default presentation. Existing saved decks, including empty decks, are preserved.
+Choose **Editor settings > Open demo & manual** to load it again, or **New
+presentation** to start with an empty deck. Both actions open the import review;
+choose **Apply design** and confirm replacement. Unsaved work gets a discard warning.
+The manual and its images are also available in standalone HTML, even offline.
 
 Build the 31-slide manual with the command below and open `dist/slidezz-manual.html`
 without a backend, or import

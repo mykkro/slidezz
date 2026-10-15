@@ -7,6 +7,11 @@ for a longer demonstration.
 
 ## Make Your First Presentation
 
+Fresh editors open the built-in slide manual. To start empty, choose **Editor
+settings > New presentation**, then apply the empty design. You can revisit the
+manual using **Editor settings > Open demo & manual** without downloading files;
+review and confirm replacement first. Saved work is never replaced on startup.
+
 1. Copy the complete deck below into a `.yaml` or `.yml` file, or paste it directly
    into **Import > Text**, with YAML selected.
 2. Inspect the validation result, then choose **Apply design**. Import replaces the
