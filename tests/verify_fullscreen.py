@@ -17,6 +17,10 @@ from backend.services.bundles import build_static_html
 def check(page,url,label):
     page.goto(url)
     expect(page.locator(".slide-item")).to_have_count(2)
+    page.locator("#editor-settings").click()
+    page.locator("#editor-language").select_option("cs")
+    page.locator("#editor-settings").click()
+    expect(page.locator("#start-presentation")).to_have_text("Prezentovat")
     for _ in range(2):
         page.locator("#start-presentation").click()
         expect(page.locator("#presentation-dialog")).to_be_visible()
