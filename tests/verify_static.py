@@ -2,10 +2,14 @@
 from pathlib import Path
 import argparse
 import json
+import sys
 from zipfile import ZipFile
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from backend.app import validate
+from backend.services.bundles import build_static_html, image_files
 
 
 def main():
@@ -14,6 +18,9 @@ def main():
     args = parser.parse_args()
     results = ROOT / "test-results"
     results.mkdir(exist_ok=True)
+    data = validate(json.loads((ROOT / "examples/presentation.json").read_text(encoding="utf-8")))
+    fixture = results / "static-regression.html"
+    fixture.write_text(build_static_html(data, image_files(data, ROOT / "images")), encoding="utf-8")
     with sync_playwright() as p:
         if args.live_url:
             client = p.request.new_context(base_url=args.live_url)
@@ -37,7 +44,7 @@ def main():
         page.on("dialog", lambda dialog: dialog.accept())
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.on("request", lambda request: network.append(request.url) if request.url.startswith(("http:","https:")) else None)
-        page.goto((ROOT / "dist" / "slidezz.html").as_uri())
+        page.goto(fixture.as_uri())
         expect(page).to_have_title("Slidezz")
         page.wait_for_function("document.querySelector('.brand-symbol').complete && document.querySelector('.brand-symbol').naturalWidth > 0")
         try:

@@ -1,4 +1,12 @@
 {
+  "metadata": {
+    "title": "Slidezz Demo and Manual",
+    "author": "Slidezz",
+    "subject": "A practical guide to the Slidezz editor",
+    "description": "Layouts, Markdown, themes, images, typography, exports and speaker notes.",
+    "keywords": "Slidezz, manual, demo",
+    "language": "en"
+  },
   "theme": {
     "font_name": "Arial",
     "primary_color": "#16745C",

@@ -2,6 +2,8 @@
 (() => {
   "use strict";
   const messages = {
+  "Open demo & manual": "Otevřít ukázku a příručku",
+  "New presentation": "Nová prezentace",
   "Image with title": "Obrázek s titulkem",
   "Speaker notes": "Poznámky přednášejícího",
   "Font style": "Řez písma",

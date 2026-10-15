@@ -747,6 +747,13 @@ function bind() {
     }
   });
 }
+function openDesign(data) {
+  bootstrap.Dropdown.getInstance($("editor-settings"))?.hide();
+  $("open-import").click();
+  $("import-format").value = "json";
+  $("json-input").value = JSON.stringify(data, null, 2);
+  syncImportMode();
+}
 function previewPreset() {
   const preset = themePresets.find(item => item.id === $("theme-preset").value);
   if (!preset) return;

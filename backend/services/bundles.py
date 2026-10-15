@@ -86,7 +86,8 @@ def build_static_html(data, images):
     for name, definition in definitions.items():
         definition["icon_url"] = data_url(layout_icon(get_all_templates()[name]).encode(), "image/svg+xml")
     fonts, licenses = bundled_fonts()
-    config = dict(presentation=data, defaults=DEFAULT_THEME, templates=definitions, presets=presets, manual=manual,
+    library_names = sorted({name for name in referenced_images(manual) + [p["theme"]["default_background_image"] for p in presets] if name in images})
+    config = dict(presentation=data, defaults=DEFAULT_THEME, templates=definitions, presets=presets, manual=manual, library_names=library_names,
                   settings=SETTINGS, images={name: data_url(raw, mimetypes.guess_type(name)[0] or "image/png")
                                             for name, raw in images.items()},
                   fonts=fonts, licenses=licenses, shell=shell, viewer_shell=build_viewer_shell(),

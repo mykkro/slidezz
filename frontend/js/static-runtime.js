@@ -109,7 +109,8 @@
     return [...new Set([data.theme?.default_background_image, ...data.slides.flatMap(slide => config.templates[slide.type].fields.filter(field => field.type === "image").map(field => slide[field.name]))].filter(Boolean))].sort();
   }
   function htmlBundle(data, selectedImages) {
-    const next = {...config, presentation:validate(data), images:selectedImages, id:crypto.randomUUID()};
+    const library = Object.fromEntries(config.library_names.map(name => [name,config.images[name]]));
+    const next = {...config, presentation:validate(data), images:{...library,...selectedImages}, id:crypto.randomUUID()};
     const encoded = JSON.stringify(next).replace(/</g, "\\u003c");
     return config.shell.replace("<!--STATIC_CONFIG-->", () => '<script id="static-config" type="application/json">' + encoded + '<' + '/script>');
   }

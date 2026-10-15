@@ -40,6 +40,7 @@ def main():
         gallery.mkdir()
         for name in ("blue-light-mesh.png", "smoke-blue-blush.png"):
             shutil.copyfile(ROOT / "images" / name, gallery / name)
+        (tmp / "deck.json").write_text('{"slides":[]}', encoding="utf-8")
         app = create_app({"PRESENTATION_FILE": tmp / "deck.json", "IMAGES_DIR": gallery})
         server = make_server("127.0.0.1", 0, app)
         thread = threading.Thread(target=server.serve_forever, daemon=True)

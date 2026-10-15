@@ -109,3 +109,5 @@ storage/presentations/*
 !storage/presentations/.gitkeep
 .codex_apply_edits.py
 frontend/assets/sl-dezz-*.png
+
+dist/
